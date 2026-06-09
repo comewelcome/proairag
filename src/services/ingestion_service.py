@@ -19,9 +19,11 @@ class IngestionService:
         content: str,
         source: str | None = None,
         content_type: str = "text",
+        department_id: uuid.UUID | None = None,
     ) -> Document:
         document = Document(
             tenant_id=tenant_id,
+            department_id=department_id,
             title=title,
             content=content,
             source=source,

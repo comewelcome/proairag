@@ -14,6 +14,7 @@ Owns all Neo4j interactions. Depends on Neo4j database and entity extraction res
 - Every Cypher query MUST include WHERE tenant_id for isolation
 - Entity nodes carry tenant_id as a property
 - Graph schema: Tenant -> owns -> Document -> has_chunk -> Chunk -> mentions -> Entity
+- Graph schema: Tenant -> has_department -> Department -> contains -> Document -> belongs_to -> Department
 - Entity relationships: CO_OCCURS_WITH between different entity types
 
 ## Module Index

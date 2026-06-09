@@ -17,9 +17,11 @@ Owns all request/response models. Used by API routes for input validation and re
 
 ## Schema Index
 
-- tenant.py — TenantCreate, TenantResponse, TenantUpdate
-- document.py — DocumentCreate, DocumentResponse
+- tenant.py — TenantCreate, TenantResponse, TenantUpdate (+ admin_email, admin_password, admin_full_name)
+- document.py — DocumentCreate, DocumentResponse (+ department_id)
 - rag.py — RAGQuery, RAGResponse, RAGSource
+- auth.py — UserCreate, UserResponse, LoginRequest, TokenResponse
+- department.py — DepartmentCreate, DepartmentResponse, DepartmentUpdate, UserDepartmentAssignment, UserDepartmentResponse
 
 ## Work Guidance
 

@@ -19,9 +19,12 @@ Owns all database table definitions. Depends on src/db/session.py for the Base c
 
 ## Model Index
 
-- tenant.py — Tenant: id, name, api_key, is_active, created_at
-- document.py — Document: tenant_id, title, content, source, content_type, is_processed
+- tenant.py — Tenant: id, name, api_key, is_active, created_at (+ departments, users relationships)
+- document.py — Document: tenant_id, department_id, title, content, source, content_type, is_processed
 - chunk.py — Chunk: tenant_id, document_id, content, embedding (vector), chunk_index
+- department.py — Department: tenant_id, name, description, created_at
+- user.py — User: tenant_id, email, password_hash, full_name, is_tenant_admin, is_active
+- user_department.py — UserDepartment: user_id, department_id, role (junction table)
 
 ## Work Guidance
 

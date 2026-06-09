@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import String, DateTime, Boolean
@@ -17,3 +19,5 @@ class Tenant(Base):
     )
 
     documents: Mapped[list["Document"]] = relationship(back_populates="tenant", lazy="selectin")
+    departments: Mapped[list["Department"]] = relationship(back_populates="tenant", lazy="selectin")
+    users: Mapped[list["User"]] = relationship(back_populates="tenant", lazy="selectin")

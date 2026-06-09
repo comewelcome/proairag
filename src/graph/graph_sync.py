@@ -9,7 +9,8 @@ class GraphSyncService:
         self.extractor = get_entity_extractor()
 
     async def sync_document(
-        self, tenant_id: uuid.UUID, doc_id: uuid.UUID, chunks: list[dict]
+        self, tenant_id: uuid.UUID, doc_id: uuid.UUID, chunks: list[dict],
+        department_id: uuid.UUID | None = None,
     ):
         # Create/merge tenant
         await self.neo4j.execute(
@@ -26,6 +27,25 @@ class GraphSyncService:
             """,
             {"tenant_id": str(tenant_id), "doc_id": str(doc_id)},
         )
+
+        # Create/merge department and link to document
+        if department_id:
+            await self.neo4j.execute(
+                """
+                MERGE (t:Tenant {id: $tenant_id})
+                MERGE (dep:Department {id: $department_id, tenant_id: $tenant_id})
+                ON CREATE SET dep.created_at = datetime()
+                MERGE (d:Document {id: $doc_id})
+                SET d.department_id = $department_id
+                MERGE (d)-[:BELONGS_TO]->(dep)
+                MERGE (dep)-[:IN_TENANT]->(t)
+                """,
+                {
+                    "tenant_id": str(tenant_id),
+                    "department_id": str(department_id),
+                    "doc_id": str(doc_id),
+                },
+            )
 
         all_entities_by_name: dict[str, dict] = {}
 
