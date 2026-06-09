@@ -1,0 +1,11 @@
+CREATE CONSTRAINT tenant_unique IF NOT EXISTS
+FOR (t:Tenant) REQUIRE t.id IS UNIQUE;
+
+CREATE CONSTRAINT document_unique IF NOT EXISTS
+FOR (d:Document) REQUIRE d.id IS UNIQUE;
+
+CREATE CONSTRAINT chunk_unique IF NOT EXISTS
+FOR (c:Chunk) REQUIRE c.id IS UNIQUE;
+
+CREATE CONSTRAINT entity_tenant_unique IF NOT EXISTS
+FOR (e:Entity) REQUIRE (e.id, e.tenant_id) IS UNIQUE;
