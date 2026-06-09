@@ -21,5 +21,6 @@ async def upload_document(
         content=data.content,
         source=data.source,
         content_type=data.content_type,
+        department_id=data.department_id,
     )
     return document

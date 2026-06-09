@@ -20,13 +20,15 @@ Owns all business logic. Depends on models for data access, schemas for validati
 
 ## Service Index
 
-- tenant_service.py — Tenant CRUD (create, get, update, deactivate)
+- tenant_service.py — Tenant CRUD (create, get, update, deactivate) + admin user creation
 - embedding_service.py — Text embeddings (sentence-transformers or hash fallback)
-- ingestion_service.py — Document ingestion (chunking + embedding + storage)
-- vector_service.py — pgvector similarity search (tenant-isolated)
+- ingestion_service.py — Document ingestion (chunking + embedding + storage) + department_id
+- vector_service.py — pgvector similarity search (tenant + department isolated)
 - graph_service.py — Neo4j graph queries (entity context, graph summary, concept lookup)
-- rag_service.py — Hybrid RAG orchestration (vector + graph + LLM)
+- rag_service.py — Hybrid RAG orchestration (vector + graph + LLM) + department filtering
 - llm_service.py — LLM provider interface (OpenAI, Local/Ollama)
+- auth_service.py — JWT auth: password hashing, token generation/validation, user registration
+- department_service.py — Department CRUD, user assignment, department membership queries
 
 ## Work Guidance
 

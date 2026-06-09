@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from src.config import get_settings
 from src.middleware.tenant import TenantContextMiddleware
-from src.api import tenants, documents, rag
+from src.api import tenants, documents, rag, auth, departments
 
 
 def create_app() -> FastAPI:
@@ -16,6 +16,8 @@ def create_app() -> FastAPI:
     app.add_middleware(TenantContextMiddleware)
 
     # Routers
+    app.include_router(auth.router)
+    app.include_router(departments.router)
     app.include_router(tenants.router)
     app.include_router(documents.router)
     app.include_router(rag.router)

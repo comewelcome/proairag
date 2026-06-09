@@ -17,8 +17,10 @@ Owns all test code: fixtures, unit tests, integration tests. Depends on src/ for
 
 ## Test Index
 
-- conftest.py — Shared fixtures: app, client, tenants, db_session
+- conftest.py — Shared fixtures: app, client, tenants, db_session, departments, users, JWT tokens
 - test_tenant_isolation.py — Security tests: tenant ID enforcement, API key auth
+- test_department_isolation.py — Security tests: inter-department data isolation (CRITICAL)
+- test_auth.py — Auth tests: JWT login, token validation, department CRUD
 
 ## Work Guidance
 

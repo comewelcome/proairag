@@ -22,11 +22,14 @@ SQL:
 - 001_create_tenants.sql — Tenants table with UUID PK, unique constraints
 - 002_create_documents.sql — Documents table with FK to tenants, cascade delete
 - 003_create_chunks.sql — Chunks table with vector(384), hnsw index
+- 004_create_departments_users.sql — Departments, Users, User_Departments tables + department_id on documents
 - 005_rls_policies.sql — Row-Level Security policies for tenant isolation
+- 006_rls_departments.sql — RLS policies for departments table
 
 Cypher:
 - 001_constraints.cypher — Unique constraints for Tenant, Document, Chunk, Entity
 - 002_indexes.cypher — Composite indexes on Entity, Chunk, Document by tenant_id
+- 003_department.cypher — Department node constraints and indexes
 
 ## Work Guidance
 

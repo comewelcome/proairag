@@ -8,11 +8,13 @@ class DocumentCreate(BaseModel):
     content: str = Field(..., min_length=1)
     source: str | None = None
     content_type: str = "text"
+    department_id: uuid.UUID | None = None
 
 
 class DocumentResponse(BaseModel):
     id: uuid.UUID
     tenant_id: uuid.UUID
+    department_id: uuid.UUID | None = None
     title: str
     source: str | None
     content_type: str

@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
 
+    # JWT
+    jwt_algorithm: str = "HS256"
+    jwt_expire_hours: int = 24
+
     # RAG
     chunk_size: int = 512
     chunk_overlap: int = 64

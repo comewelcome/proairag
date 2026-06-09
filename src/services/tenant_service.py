@@ -14,6 +14,30 @@ class TenantService:
         api_key = data.api_key or f"sk-{secrets.token_urlsafe(32)}"
         tenant = Tenant(name=data.name, api_key=api_key)
         self.db.add(tenant)
+        await self.db.flush()
+
+        # Create admin user if provided
+        if data.admin_email and data.admin_password:
+            from src.models.user import User
+            from src.services.auth_service import pwd_context
+            admin = User(
+                tenant_id=tenant.id,
+                email=data.admin_email,
+                password_hash=pwd_context.hash(data.admin_password),
+                full_name=data.admin_full_name,
+                is_tenant_admin=True,
+            )
+            self.db.add(admin)
+
+        # Create default "General" department
+        from src.models.department import Department
+        general_dept = Department(
+            tenant_id=tenant.id,
+            name="General",
+            description="Default department for all tenant members",
+        )
+        self.db.add(general_dept)
+
         await self.db.commit()
         await self.db.refresh(tenant)
         return tenant

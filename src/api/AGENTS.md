@@ -18,10 +18,19 @@ Owns all HTTP routes and their request/response contracts. Depends on services f
 
 ## Endpoints
 
-- POST /tenants/ — Create tenant (public, returns api_key)
+- POST /auth/login — Login with email + password, returns JWT token
+- POST /auth/register — Register new user in tenant (returns JWT)
+- POST /tenants/ — Create tenant (public, returns api_key + optional admin user)
 - GET /tenants/{tenant_id} — Get tenant by ID
-- POST /documents/ — Ingest document (tenant-isolated)
-- POST /rag/query — Hybrid RAG query (vector + graph, tenant-isolated)
+- POST /documents/ — Ingest document (tenant-isolated, optional department_id)
+- POST /rag/query — Hybrid RAG query (vector + graph, tenant + department isolated)
+- GET /departments/ — List departments for tenant
+- POST /departments/ — Create department
+- GET /departments/{id} — Get department
+- PUT /departments/{id} — Update department
+- DELETE /departments/{id} — Delete department
+- POST /departments/{id}/users — Assign user to department (admin only)
+- DELETE /departments/{id}/users/{user_id} — Remove user from department
 - GET /health — Health check (no auth required)
 
 ## Work Guidance

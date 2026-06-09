@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import String, Text, DateTime, ForeignKey, UUID, Boolean
@@ -11,6 +13,9 @@ class Document(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("tenants.id", ondelete="CASCADE"), index=True
+    )
+    department_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("departments.id", ondelete="SET NULL"), index=True, default=None
     )
     title: Mapped[str] = mapped_column(String(512))
     content: Mapped[str] = mapped_column(Text)
@@ -27,4 +32,5 @@ class Document(Base):
     )
 
     tenant: Mapped["Tenant"] = relationship(back_populates="documents")
+    department: Mapped["Department | None"] = relationship(back_populates="documents")
     chunks: Mapped[list["Chunk"]] = relationship(back_populates="document", lazy="selectin")

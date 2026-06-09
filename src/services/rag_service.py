@@ -19,11 +19,22 @@ class RAGService:
         self,
         tenant_id: uuid.UUID,
         rag_query: RAGQuery,
+        user_id: uuid.UUID | None = None,
+        is_tenant_admin: bool = False,
     ) -> RAGResponse:
+        # Resolve user departments for filtering
+        department_ids: list[uuid.UUID] | None = None
+        if user_id and not is_tenant_admin:
+            from src.services.department_service import get_department_service
+            dept_service = get_department_service(self.db)
+            department_ids = await dept_service.get_user_department_ids(user_id)
+
         vector_results = await self.vector_service.search(
             query=rag_query.query,
             tenant_id=tenant_id,
             top_k=rag_query.top_k,
+            department_ids=department_ids,
+            is_tenant_admin=is_tenant_admin,
         )
 
         graph_context = []
