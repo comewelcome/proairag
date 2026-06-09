@@ -30,7 +30,7 @@ class VectorService:
         if department_ids and not is_tenant_admin:
             dept_uuids = [str(d) for d in department_ids]
             # Documents with NULL department_id are visible to all (backward compat)
-            dept_filter = "AND (c.department_id IS NULL OR c.department_id = ANY(:department_ids))"
+            dept_filter = "AND (d.department_id IS NULL OR d.department_id = ANY(:department_ids))"
             dept_params["department_ids"] = dept_uuids
 
         result = await self.db.execute(
@@ -40,14 +40,14 @@ class VectorService:
                     c.content,
                     c.chunk_index,
                     c.document_id,
-                    c.department_id,
+                    d.department_id,
                     d.title as document_title,
-                    1 - (c.embedding <=> :embedding::vector) as similarity
+                    1 - (c.embedding <=> CAST(:embedding AS vector)) as similarity
                 FROM chunks c
                 JOIN documents d ON c.document_id = d.id
                 WHERE c.tenant_id = :tenant_id
                 {dept_filter}
-                ORDER BY c.embedding <=> :embedding::vector
+                ORDER BY c.embedding <=> CAST(:embedding AS vector)
                 LIMIT :top_k
             """),
             {

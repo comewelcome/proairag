@@ -13,7 +13,12 @@ from src.db.session import async_session
 class TenantContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         public_paths = ["/health", "/docs", "/openapi.json", "/redoc"]
-        if request.url.path in public_paths:
+        # Tenant creation and auth endpoints are public
+        public_endpoints = [
+            ("POST", "/tenants/"),
+            ("POST", "/auth/login"),
+        ]
+        if request.url.path in public_paths or (request.method, request.url.path) in public_endpoints:
             return await call_next(request)
 
         # Try JWT auth first
@@ -30,6 +35,11 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
                 request.state.auth_mode = "jwt"
                 response = await call_next(request)
                 return response
+            # Invalid JWT - return 401 immediately
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or expired token",
+            )
 
         # Fall back to API key auth
         api_key = request.headers.get("X-API-Key")

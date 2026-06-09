@@ -16,6 +16,8 @@ Owns all test code: fixtures, unit tests, integration tests. Depends on src/ for
 - Integration tests use real Docker database — run with `pytest tests/integration/`
 - Security tests MUST verify tenant and department isolation — failure is a security breach
 - Auto-marked: tests in tests/unit/ get `@pytest.mark.unit`, tests in tests/integration/ get `@pytest.mark.integration`
+- All 141 tests pass with Docker (PostgreSQL + pgvector)
+- Session-scoped fixtures for shared state across integration tests
 
 ## Test Structure
 
@@ -30,10 +32,10 @@ tests/
 │   └── test_vector_service.py     # Embedding helpers
 ├── integration/             # Integration tests (real Docker DB)
 │   ├── conftest.py              # Real DB fixtures (tenant, users, departments)
-│   └── test_full_api_flow.py    # End-to-end API tests
-├── test_tenant_isolation.py     # Security: cross-tenant data leakage
-├── test_department_isolation.py # Security: cross-department data leakage
-└── test_auth.py                 # API: login, JWT, department CRUD
+│   ├── test_full_api_flow.py    # End-to-end API tests (23 tests)
+│   ├── test_auth.py             # Auth endpoints (8 tests)
+│   ├── test_tenant_isolation.py # Tenant isolation (5 tests)
+│   └── test_department_isolation.py # Department isolation (3 tests)
 ```
 
 ## Test Index
@@ -45,13 +47,11 @@ tests/
 - unit/test_schemas.py — All Pydantic schemas validation (42)
 - unit/test_vector_service.py — Embedding to SQL string conversion (9)
 
-### Integration tests (Docker required)
-- integration/test_full_api_flow.py — Tenant creation, departments, auth, document isolation, cross-tenant isolation
-
-### Security tests
-- test_tenant_isolation.py — Cross-tenant data leakage prevention
-- test_department_isolation.py — Cross-department data leakage prevention (CRITICAL)
-- test_auth.py — JWT login, API key auth, department management
+### Integration tests (38 tests, Docker required)
+- integration/test_full_api_flow.py — Tenant creation, departments, auth, document isolation, cross-tenant isolation (23 tests)
+- integration/test_auth.py — Login, JWT auth, department endpoints (8 tests)
+- integration/test_tenant_isolation.py — Cross-tenant data leakage prevention (5 tests)
+- integration/test_department_isolation.py — Cross-department data leakage prevention (3 tests)
 
 ## Work Guidance
 
@@ -61,6 +61,7 @@ tests/
 - API tests verify HTTP status codes and response schemas
 - Unit tests should be fast (< 10ms each)
 - Integration tests are slower (DB I/O) — mark with `@pytest.mark.integration`
+- Docker containers must be running: `docker compose up -d postgres neo4j`
 
 ## Child DOX Index
 

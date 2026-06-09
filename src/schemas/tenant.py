@@ -14,6 +14,7 @@ class TenantCreate(BaseModel):
 class TenantResponse(BaseModel):
     id: uuid.UUID
     name: str
+    api_key: str | None = None
     is_active: bool
     created_at: datetime
 

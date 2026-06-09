@@ -10,12 +10,15 @@ class TestDepartmentIsolation:
 
     @pytest.mark.asyncio
     async def test_hr_cannot_see_compta_documents(
-        self, tenant_a, dept_hr, dept_compta, db_session
+        self, tenant_a, db_session
     ):
         """Un utilisateur RH ne doit pas voir les documents de la comptabilite."""
+        dept_hr = tenant_a["dept_hr"]
+        dept_compta = tenant_a["dept_compta"]
+
         # Create a compta document
         compta_doc = Document(
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             department_id=dept_compta.id,
             title="Paie employees",
             content="Salaires confidentiels",
@@ -26,7 +29,7 @@ class TestDepartmentIsolation:
 
         # Create a chunk
         chunk = Chunk(
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             document_id=compta_doc.id,
             content="Salaire: 5000 EUR",
             embedding=[0.1] * 384,
@@ -40,7 +43,7 @@ class TestDepartmentIsolation:
         hr_dept_ids = [dept_hr.id]
         results = await vector_service.search(
             query="salaire",
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             department_ids=hr_dept_ids,
             is_tenant_admin=False,
         )
@@ -48,12 +51,15 @@ class TestDepartmentIsolation:
 
     @pytest.mark.asyncio
     async def test_tenant_admin_sees_all_departments(
-        self, tenant_a, dept_hr, dept_compta, db_session
+        self, tenant_a, db_session
     ):
         """Un tenant admin doit pouvoir voir les documents de tous les departements."""
+        dept_hr = tenant_a["dept_hr"]
+        dept_compta = tenant_a["dept_compta"]
+
         # Create HR document
         hr_doc = Document(
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             department_id=dept_hr.id,
             title="Politique RH",
             content="Conges payes",
@@ -63,7 +69,7 @@ class TestDepartmentIsolation:
         await db_session.refresh(hr_doc)
 
         chunk = Chunk(
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             document_id=hr_doc.id,
             content="Politique de conges",
             embedding=[0.1] * 384,
@@ -76,7 +82,7 @@ class TestDepartmentIsolation:
         vector_service = get_vector_service(db_session)
         results = await vector_service.search(
             query="conges",
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             department_ids=[dept_compta.id],
             is_tenant_admin=True,
         )
@@ -85,12 +91,14 @@ class TestDepartmentIsolation:
 
     @pytest.mark.asyncio
     async def test_null_department_visible_to_all(
-        self, tenant_a, dept_hr, db_session
+        self, tenant_a, db_session
     ):
         """Les documents sans departement sont visibles par tous les utilisateurs du tenant."""
+        dept_hr = tenant_a["dept_hr"]
+
         # Document with no department (backward compat)
         doc = Document(
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             department_id=None,
             title="Document general",
             content="Visible par tous",
@@ -100,7 +108,7 @@ class TestDepartmentIsolation:
         await db_session.refresh(doc)
 
         chunk = Chunk(
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             document_id=doc.id,
             content="Document general",
             embedding=[0.1] * 384,
@@ -113,7 +121,7 @@ class TestDepartmentIsolation:
         vector_service = get_vector_service(db_session)
         results = await vector_service.search(
             query="general",
-            tenant_id=tenant_a.id,
+            tenant_id=tenant_a["tenant"].id,
             department_ids=[dept_hr.id],
             is_tenant_admin=False,
         )
