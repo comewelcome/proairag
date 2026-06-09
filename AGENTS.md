@@ -63,7 +63,9 @@ Update parent docs when parent-level structure, ownership, workflow, or child in
 ## User Preferences
 
 - Multi-tenant isolation is a HARD requirement — no tenant data leakage under any circumstance
+- Department-level access control is a HARD requirement — users can only see documents in their departments
 - Defense-in-depth: app-level filtering + DB-level RLS + graph-level tenant scoping
+- Dual authentication: JWT (user-level, department-scoped) + API key (tenant-level, admin access)
 - Prefer async SQLAlchemy for DB operations
 - French comments in SQL migrations are acceptable
 
