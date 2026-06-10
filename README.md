@@ -198,9 +198,11 @@ docker compose up -d postgres neo4j
 Set environment variables directly or create a `.env` file (see Environment Variables section):
 
 ```bash
-export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/proairag"
+export DATABASE_URL="postgresql+asyncpg://YOUR_USER:YOUR_PASS@localhost:5432/proairag"
 export NEO4J_URI="bolt://localhost:7687"
-export NEO4J_PASSWORD="proairag123"
+export NEO4J_USER="neo4j"
+export NEO4J_PASSWORD="YOUR_NEO4J_PASSWORD"
+export SECRET_KEY="YOUR_JWT_SECRET"
 ```
 
 ### 4. Run the application
@@ -422,11 +424,11 @@ USER QUERY
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/proairag` | PostgreSQL connection string |
-| `NEO4J_URI` | `bolt://localhost:7687` | Neo4j bolt URI |
-| `NEO4J_USER` | `neo4j` | Neo4j username |
-| `NEO4J_PASSWORD` | `proairag123` | Neo4j password |
-| `SECRET_KEY` | `change-me-in-production` | JWT signing secret |
+| `DATABASE_URL` | *(required)* | PostgreSQL connection string |
+| `NEO4J_URI` | *(required)* | Neo4j bolt URI |
+| `NEO4J_USER` | *(required)* | Neo4j username |
+| `NEO4J_PASSWORD` | *(required)* | Neo4j password |
+| `SECRET_KEY` | *(required)* | JWT signing secret |
 | `JWT_ALGORITHM` | `HS256` | JWT algorithm |
 | `JWT_EXPIRE_HOURS` | `24` | Token expiration time |
 | `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` | Embedding model name |

@@ -4,11 +4,11 @@ ProAirAg MCP Server
 Exposes ProAirAg RAG, document management, graph, and tenant operations as MCP tools.
 Connects directly to PostgreSQL (pgvector) and Neo4j — no REST API proxy.
 
-Environment variables:
-    DATABASE_URL       — PostgreSQL async connection string (default: postgresql+asyncpg://postgres:postgres@localhost:5432/proairag)
-    NEO4J_URI          — Neo4j bolt URI (default: bolt://localhost:7687)
-    NEO4J_USER         — Neo4j username (default: neo4j)
-    NEO4J_PASSWORD     — Neo4j password (default: proairag123)
+Environment variables (all required — no safe defaults):
+    DATABASE_URL       — PostgreSQL async connection string
+    NEO4J_URI          — Neo4j bolt URI
+    NEO4J_USER         — Neo4j username
+    NEO4J_PASSWORD     — Neo4j password
     API_KEY            — Tenant API key for authentication (required for write tools)
     EMBEDDING_MODEL    — Sentence-transformers model name (default: sentence-transformers/all-MiniLM-L6-v2)
     EMBEDDING_DIMENSION — Embedding vector dimension (default: 384)
@@ -29,13 +29,25 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 # Configuration
 # ---------------------------------------------------------------------------
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/proairag",
-)
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "proairag123")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is required. "
+        "Example: postgresql+asyncpg://user:pass@host:5432/dbname"
+    )
+
+NEO4J_URI = os.getenv("NEO4J_URI", "")
+if not NEO4J_URI:
+    raise RuntimeError("NEO4J_URI environment variable is required.")
+
+NEO4J_USER = os.getenv("NEO4J_USER", "")
+if not NEO4J_USER:
+    raise RuntimeError("NEO4J_USER environment variable is required.")
+
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+if not NEO4J_PASSWORD:
+    raise RuntimeError("NEO4J_PASSWORD environment variable is required.")
+
 API_KEY = os.getenv("API_KEY", "")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "512"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "64"))

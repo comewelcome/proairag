@@ -7,6 +7,11 @@ Tests the MCP server with realistic company data:
 - Documents scoped to departments
 - RAG queries to verify access control
 
+Environment variables for test credentials (loaded from env, not hardcoded):
+    TEST_AEROTECH_API_KEY  — API key for AeroTech test tenant
+    TEST_DATAVAULT_API_KEY  — API key for DataVault test tenant
+    TEST_USER_PASSWORD     — Password for test users
+
 Run with:
   cd /home/yo/Desktop/code/proairag && docker compose up -d
   python tests/test_mcp_server.py
@@ -17,6 +22,7 @@ import asyncio
 import hashlib
 import json
 import math
+import os
 import sys
 import uuid
 
@@ -25,6 +31,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # Setup DB connection
 from src.db.session import async_session
+
+# Test credentials from environment variables (no hardcoded secrets)
+_TEST_AEROTECH_API_KEY = os.getenv("TEST_AEROTECH_API_KEY", "test-only-aerotech-key-not-real")
+_TEST_DATAVAULT_API_KEY = os.getenv("TEST_DATAVAULT_API_KEY", "test-only-datavault-key-not-real")
+_TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD", "test-user-password-not-real")
 
 
 def _tid(name: str) -> str:
@@ -46,16 +57,16 @@ def _hash_embed(text: str) -> str:
 
 AEROTECH = {
     "name": "AeroTech Solutions",
-    "api_key": "sk-aerotech-test-key",
+    "api_key": _TEST_AEROTECH_API_KEY,
     "departments": {
         "engineering": "Engineering & R&D",
         "security": "Cybersecurity & Compliance",
         "hr": "Human Resources",
     },
     "users": {
-        "alice": {"email": "alice.chen@aerotech.com", "password": "pass123", "name": "Alice Chen", "admin": True},
-        "bob": {"email": "bob.martinez@aerotech.com", "password": "pass123", "name": "Bob Martinez", "admin": False},
-        "carol": {"email": "carol.johnson@aerotech.com", "password": "pass123", "name": "Carol Johnson", "admin": False},
+        "alice": {"email": "alice.chen@aerotech.com", "password": _TEST_USER_PASSWORD, "name": "Alice Chen", "admin": True},
+        "bob": {"email": "bob.martinez@aerotech.com", "password": _TEST_USER_PASSWORD, "name": "Bob Martinez", "admin": False},
+        "carol": {"email": "carol.johnson@aerotech.com", "password": _TEST_USER_PASSWORD, "name": "Carol Johnson", "admin": False},
     },
 }
 
@@ -63,14 +74,14 @@ AEROTECH = {
 
 DATAVAULT = {
     "name": "DataVault Inc",
-    "api_key": "sk-datavault-test-key",
+    "api_key": _TEST_DATAVAULT_API_KEY,
     "departments": {
         "analytics": "Data Analytics",
         "legal": "Legal & Compliance",
     },
     "users": {
-        "dave": {"email": "dave.wilson@datavault.com", "password": "pass123", "name": "Dave Wilson", "admin": True},
-        "eve": {"email": "eve.garcia@datavault.com", "password": "pass123", "name": "Eve Garcia", "admin": False},
+        "dave": {"email": "dave.wilson@datavault.com", "password": _TEST_USER_PASSWORD, "name": "Dave Wilson", "admin": True},
+        "eve": {"email": "eve.garcia@datavault.com", "password": _TEST_USER_PASSWORD, "name": "Eve Garcia", "admin": False},
     },
 }
 

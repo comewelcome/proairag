@@ -18,6 +18,7 @@ Owns all test code: fixtures, unit tests, integration tests. Depends on src/ for
 - Auto-marked: tests in tests/unit/ get `@pytest.mark.unit`, tests in tests/integration/ get `@pytest.mark.integration`
 - All 141 tests pass with Docker (PostgreSQL + pgvector)
 - Session-scoped fixtures for shared state across integration tests
+- **Security: test credentials (API keys, user passwords) come from env vars (TEST_*), never hardcoded — see .env.example**
 
 ## Test Structure
 

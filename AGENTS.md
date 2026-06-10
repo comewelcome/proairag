@@ -69,6 +69,15 @@ Update parent docs when parent-level structure, ownership, workflow, or child in
 - Prefer async SQLAlchemy for DB operations
 - French comments in SQL migrations are acceptable
 
+## Security Rules
+
+- NO hardcoded secrets, passwords, API keys, or credentials in source code, tests, or config files
+- All sensitive values (DB URLs, passwords, JWT secrets, API keys) MUST come from environment variables or .env file
+- Config classes must raise on missing required secrets — never fall back to a default password
+- Test fixtures must load credentials from env vars, not inline literals
+- .env is in .gitignore; .env.example provides the template with placeholder values
+- docker-compose.yml uses ${VAR:-fallback} syntax — fallbacks must never be real credentials
+
 ## Child DOX Index
 
 - `src/AGENTS.md` — Source code: FastAPI app, architecture, all Python modules

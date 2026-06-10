@@ -19,6 +19,8 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - No direct DB queries in API routes — all logic flows through services
 - Embedding service falls back to hash-based embedding when sentence-transformers is unavailable
 - Neo4j queries always include WHERE tenant_id for isolation
+- **Security: `src/config.py` Settings raises `ValueError` if required secrets (database_url, neo4j_*, secret_key) are missing — never use default passwords**
+- **Security: `src/mcp_server.py` raises `RuntimeError` at import time if DATABASE_URL or NEO4J_* env vars are unset**
 
 ## Work Guidance
 

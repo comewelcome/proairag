@@ -6,11 +6,11 @@ Exposes RAG queries, document management, graph operations, and tenant managemen
 ## Quick Start
 
 ```bash
-# Set environment variables
-export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/proairag"
+# Set environment variables (use your own credentials)
+export DATABASE_URL="postgresql+asyncpg://YOUR_USER:YOUR_PASS@localhost:5432/proairag"
 export NEO4J_URI="bolt://localhost:7687"
 export NEO4J_USER="neo4j"
-export NEO4J_PASSWORD="proairag123"
+export NEO4J_PASSWORD="YOUR_NEO4J_PASSWORD"
 export API_KEY="sk-your-tenant-api-key"  # Optional — used for tenant resolution
 
 # Run the server (stdio transport — default)
@@ -61,10 +61,10 @@ fastmcp run src/mcp_server.py:mcp
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/proairag` | PostgreSQL connection string |
-| `NEO4J_URI` | `bolt://localhost:7687` | Neo4j bolt URI |
-| `NEO4J_USER` | `neo4j` | Neo4j username |
-| `NEO4J_PASSWORD` | `proairag123` | Neo4j password |
+| `DATABASE_URL` | *(required)* | PostgreSQL connection string |
+| `NEO4J_URI` | *(required)* | Neo4j bolt URI |
+| `NEO4J_USER` | *(required)* | Neo4j username |
+| `NEO4J_PASSWORD` | *(required)* | Neo4j password |
 | `API_KEY` | (empty) | Tenant API key for auth (optional — use tenant_id param instead) |
 | `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` | Embedding model |
 | `EMBEDDING_DIMENSION` | `384` | Embedding vector dimension |
