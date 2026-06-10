@@ -45,3 +45,4 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - `src/middleware/AGENTS.md` — Request middleware: JWT + API key auth, tenant/user context injection
 - `src/schemas/AGENTS.md` — Pydantic schemas: request/response validation (auth, department, tenant, document, rag)
 - `src/db/AGENTS.md` — Database session management: async SQLAlchemy engine
+- `src/mcp_server.py` — MCP server: 10 tools exposing RAG, documents, graph, tenants via FastMCP

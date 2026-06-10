@@ -32,6 +32,7 @@ tests/
 │   └── test_vector_service.py     # Embedding helpers
 ├── integration/             # Integration tests (real Docker DB)
 │   ├── conftest.py              # Real DB fixtures (tenant, users, departments)
+│   ├── test_mcp_server.py       # MCP server mock data setup + verification
 │   ├── test_full_api_flow.py    # End-to-end API tests (23 tests)
 │   ├── test_auth.py             # Auth endpoints (8 tests)
 │   ├── test_tenant_isolation.py # Tenant isolation (5 tests)
