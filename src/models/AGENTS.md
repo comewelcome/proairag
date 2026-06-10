@@ -2,7 +2,7 @@
 
 ## Purpose
 
-SQLAlchemy ORM models defining the database schema for ProAirAg. Models enforce tenant isolation through foreign keys and cascade delete rules.
+SQLAlchemy ORM models defining the database schema for ProAiRag. Models enforce tenant isolation through foreign keys and cascade delete rules.
 
 ## Ownership
 

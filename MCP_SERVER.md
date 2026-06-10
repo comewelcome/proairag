@@ -1,6 +1,6 @@
-# ProAirAg MCP Server
+# ProAiRag MCP Server
 
-MCP (Model Context Protocol) server for ProAirAg — hybrid multi-tenant RAG system.
+MCP (Model Context Protocol) server for ProAiRag — hybrid multi-tenant RAG system.
 Exposes RAG queries, document management, graph operations, and tenant management as MCP tools.
 
 ## Quick Start

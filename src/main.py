@@ -8,7 +8,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
 
     app = FastAPI(
-        title="ProAirAg - Hybrid Multi-Tenant RAG",
+        title="ProAiRag - Hybrid Multi-Tenant RAG",
         version="0.1.0",
     )
 

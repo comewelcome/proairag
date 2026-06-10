@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Business logic layer for ProAirAg. Implements core workflows: tenant management, document ingestion, embeddings, vector search, graph queries, RAG orchestration, and LLM integration.
+Business logic layer for ProAiRag. Implements core workflows: tenant management, document ingestion, embeddings, vector search, graph queries, RAG orchestration, and LLM integration.
 
 ## Ownership
 

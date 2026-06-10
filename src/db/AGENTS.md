@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Database session management for ProAirAg. Provides async SQLAlchemy engine, session factory, and Base declarative class.
+Database session management for ProAiRag. Provides async SQLAlchemy engine, session factory, and Base declarative class.
 
 ## Ownership
 

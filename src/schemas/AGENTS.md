@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Pydantic v2 schemas for request/response validation in ProAirAg API. Enforces data contracts between API clients and the application.
+Pydantic v2 schemas for request/response validation in ProAiRag API. Enforces data contracts between API clients and the application.
 
 ## Ownership
 

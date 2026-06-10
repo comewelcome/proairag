@@ -1,6 +1,6 @@
-# ProAirAg — Hybrid Multi-Tenant RAG System
+# ProAiRag — Hybrid Multi-Tenant RAG System
 
-ProAirAg is a production-grade Retrieval-Augmented Generation (RAG) platform combining
+ProAiRag is a production-grade Retrieval-Augmented Generation (RAG) platform combining
 **PostgreSQL vector search (pgvector)** with **Neo4j knowledge graph reasoning**.
 
 Built for enterprises requiring strict **multi-tenant isolation** and **department-level
@@ -445,7 +445,7 @@ USER QUERY
 
 ## MCP Server
 
-ProAirAg ships with a FastMCP server exposing 10 tools for AI assistant integrations.
+ProAiRag ships with a FastMCP server exposing 10 tools for AI assistant integrations.
 See `MCP_SERVER.md` for complete documentation.
 
 ### Quick start
@@ -591,4 +591,4 @@ Results returned (only from user's departments)
 
 ## License
 
-This project is part of ProAirAg — a hybrid multi-tenant RAG system.
+This project is part of ProAiRag — a hybrid multi-tenant RAG system.

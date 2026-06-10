@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Neo4j knowledge graph integration for ProAirAg. Handles entity extraction, graph synchronization, and graph queries for semantic reasoning.
+Neo4j knowledge graph integration for ProAiRag. Handles entity extraction, graph synchronization, and graph queries for semantic reasoning.
 
 ## Ownership
 

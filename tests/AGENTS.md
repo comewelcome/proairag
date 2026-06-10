@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Test suite for ProAirAg. Verifies tenant isolation, department isolation (both security-critical), API behavior, and service functionality.
+Test suite for ProAiRag. Verifies tenant isolation, department isolation (both security-critical), API behavior, and service functionality.
 
 ## Ownership
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Core application code for ProAirAg — a hybrid multi-tenant RAG system with department-level access control, combining PostgreSQL vector search (tenant-isolated via Row-Level Security) with Neo4j knowledge graph reasoning.
+Core application code for ProAiRag — a hybrid multi-tenant RAG system with department-level access control, combining PostgreSQL vector search (tenant-isolated via Row-Level Security) with Neo4j knowledge graph reasoning.
 
 ## Ownership
 

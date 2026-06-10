@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Database migration scripts for ProAirAg. Defines schema evolution for both PostgreSQL (SQL) and Neo4j (Cypher).
+Database migration scripts for ProAiRag. Defines schema evolution for both PostgreSQL (SQL) and Neo4j (Cypher).
 
 ## Ownership
 

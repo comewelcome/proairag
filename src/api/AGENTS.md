@@ -2,7 +2,7 @@
 
 ## Purpose
 
-FastAPI route definitions for the ProAirAg REST API. Exposes tenant management, document ingestion, and RAG query endpoints.
+FastAPI route definitions for the ProAiRag REST API. Exposes tenant management, document ingestion, and RAG query endpoints.
 
 ## Ownership
 

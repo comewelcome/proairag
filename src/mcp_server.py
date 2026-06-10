@@ -1,7 +1,7 @@
 """
-ProAirAg MCP Server
+ProAiRag MCP Server
 
-Exposes ProAirAg RAG, document management, graph, and tenant operations as MCP tools.
+Exposes ProAiRag RAG, document management, graph, and tenant operations as MCP tools.
 Connects directly to PostgreSQL (pgvector) and Neo4j — no REST API proxy.
 
 Environment variables (all required — no safe defaults):
@@ -162,8 +162,8 @@ async def _resolve_tenant_id(tenant_id: str | None) -> uuid.UUID:
 # ---------------------------------------------------------------------------
 
 mcp = FastMCP(
-    "ProAirAg MCP Server",
-    instructions="MCP server for ProAirAg — hybrid multi-tenant RAG with PostgreSQL vector search and Neo4j knowledge graph. "
+    "ProAiRag MCP Server",
+    instructions="MCP server for ProAiRag — hybrid multi-tenant RAG with PostgreSQL vector search and Neo4j knowledge graph. "
                  "Most tools require a tenant_id (UUID) or the API_KEY environment variable.",
 )
 
