@@ -195,9 +195,12 @@ docker compose up -d postgres neo4j
 
 ### 3. Configure environment
 
+Set environment variables directly or create a `.env` file (see Environment Variables section):
+
 ```bash
-# Copy and edit .env (see Environment Variables section)
-cp .env.example .env
+export DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/proairag"
+export NEO4J_URI="bolt://localhost:7687"
+export NEO4J_PASSWORD="proairag123"
 ```
 
 ### 4. Run the application
