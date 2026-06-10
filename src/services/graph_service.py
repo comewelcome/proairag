@@ -12,12 +12,12 @@ class GraphService:
         if not entity_names:
             return []
 
-        placeholders = ",".join([f"'{name}'" for name in entity_names])
-
+        # Use WHERE clause instead of IN in node pattern (Cypher limitation)
         query = f"""
         MATCH (t:Tenant {{id: $tenant_id}})
-        MATCH (e:Entity {{tenant_id: $tenant_id, name IN [{placeholders}]}})
-        MATCH path = (e)-[*1..{depth}]-(related)
+        MATCH (e:Entity {{tenant_id: $tenant_id}})
+        WHERE e.name IN $names
+        OPTIONAL MATCH path = (e)-[*1..{depth}]-(related)
         WHERE related.tenant_id = $tenant_id
         RETURN
             e.name as entity,
@@ -29,19 +29,25 @@ class GraphService:
         LIMIT 50
         """
 
-        results = await self.neo4j.execute(query, {"tenant_id": str(tenant_id)})
+        try:
+            results = await self.neo4j.execute(query, {
+                "tenant_id": str(tenant_id),
+                "names": entity_names,
+            })
+        except Exception:
+            return []
 
         context = []
         for row in results:
-            context.append(
-                {
+            rn = row.get("related_name")
+            if rn:
+                context.append({
                     "entity": row["entity"],
-                    "entity_type": row["entity_type"],
-                    "related_name": row["related_name"],
-                    "related_type": row["related_type"],
-                    "distance": row["distance"],
-                }
-            )
+                    "entity_type": row.get("entity_type", ""),
+                    "related_name": rn,
+                    "related_type": row.get("related_type", ""),
+                    "distance": row.get("distance", 1),
+                })
         return context
 
     async def get_knowledge_graph_summary(

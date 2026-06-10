@@ -13,12 +13,21 @@ from src.db.session import async_session
 class TenantContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         public_paths = ["/health", "/docs", "/openapi.json", "/redoc"]
-        # Tenant creation and auth endpoints are public
+        # Tenant creation, auth endpoints, and tenant list are public
         public_endpoints = [
-            ("POST", "/tenants/"),
-            ("POST", "/auth/login"),
+            ("POST", "/api/tenants/"),
+            ("POST", "/api/auth/login"),
+            ("GET", "/api/tenants/"),
         ]
+        # Frontend static files and SPA routes bypass auth middleware
+        frontend_paths = ["/assets/", "/index.html", "/favicon.ico", "/vite.svg"]
+        spa_routes = ["/login", "/services", "/documents", "/chat", "/settings"]
+
         if request.url.path in public_paths or (request.method, request.url.path) in public_endpoints:
+            return await call_next(request)
+        if any(request.url.path.startswith(p) for p in frontend_paths):
+            return await call_next(request)
+        if request.url.path in spa_routes:
             return await call_next(request)
 
         # Try JWT auth first

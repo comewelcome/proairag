@@ -5,7 +5,7 @@ from src.middleware.tenant import TenantId
 from src.services.auth_service import get_auth_service
 from src.schemas.auth import LoginRequest, TokenResponse, UserCreate, UserResponse
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=TokenResponse)

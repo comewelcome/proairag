@@ -29,6 +29,16 @@ class Settings(BaseSettings):
     chunk_overlap: int = 64
     top_k: int = 5
 
+    # LLM (OpenAI-compatible API on localhost:1234)
+    llm_provider: str = "openai"
+    openai_api_key: str = ""
+    openai_api_base: str = "http://localhost:1234/v1"
+    openai_model: str = "gpt-4o-mini"
+
+    # Ollama fallback
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.1"
+
     class Config:
         env_file = ".env"
 

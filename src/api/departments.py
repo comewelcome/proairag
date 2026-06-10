@@ -12,7 +12,7 @@ from src.schemas.department import (
     UserDepartmentResponse,
 )
 
-router = APIRouter(prefix="/departments", tags=["departments"])
+router = APIRouter(prefix="/api/departments", tags=["departments"])
 
 
 @router.get("/", response_model=list[DepartmentResponse])

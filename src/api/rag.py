@@ -5,7 +5,7 @@ from src.middleware.tenant import TenantId, UserId, IsTenantAdmin
 from src.services.rag_service import get_rag_service
 from src.schemas.rag import RAGQuery, RAGResponse
 
-router = APIRouter(prefix="/rag", tags=["rag"])
+router = APIRouter(prefix="/api/rag", tags=["rag"])
 
 
 @router.post("/query", response_model=RAGResponse)
