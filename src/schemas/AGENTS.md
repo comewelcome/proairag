@@ -22,6 +22,8 @@ Owns all request/response models. Used by API routes for input validation and re
 - rag.py — RAGQuery, RAGResponse, RAGSource
 - auth.py — UserCreate, UserResponse, LoginRequest, TokenResponse
 - department.py — DepartmentCreate, DepartmentResponse, DepartmentUpdate, UserDepartmentAssignment, UserDepartmentResponse
+- chat.py — ConversationCreate, ConversationResponse, MessageCreate, MessageResponse
+- settings.py — RagSettingsUpdate, RagSettingsResponse, SystemStats
 
 ## Work Guidance
 

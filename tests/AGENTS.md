@@ -40,6 +40,10 @@ tests/
 │   └── test_department_isolation.py # Department isolation (3 tests)
 ```
 
+### Dashboard integration test (root level)
+- ../test_dashboard.py — Full-stack integration test for dashboard API endpoints (15 tests, 15/15 OK)
+  - Tests: Health, SPA login page, tenant CRUD, auth, departments, document upload/list, RAG query, chat sessions, settings get/update, system stats
+
 ## Test Index
 
 ### Unit tests (103 tests, no DB)

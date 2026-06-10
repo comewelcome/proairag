@@ -81,6 +81,7 @@ Update parent docs when parent-level structure, ownership, workflow, or child in
 ## Child DOX Index
 
 - `src/AGENTS.md` — Source code: FastAPI app, architecture, all Python modules
+- `frontend/AGENTS.md` — Dashboard frontend: React + Vite + TailwindCSS SPA
 - `tests/AGENTS.md` — Tests: strategy, coverage standards, fixtures
 - `migrations/AGENTS.md` — Database migrations: SQL + Cypher schema evolution
 - `MCP_SERVER.md` — MCP server documentation: tools, env vars, client installation

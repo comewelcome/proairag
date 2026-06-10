@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Core application code for ProAiRag — a hybrid multi-tenant RAG system with department-level access control, combining PostgreSQL vector search (tenant-isolated via Row-Level Security) with Neo4j knowledge graph reasoning.
+Core application code for ProAiRag — a hybrid multi-tenant RAG system with department-level access control, combining PostgreSQL vector search (tenant-isolated via Row-Level Security) with Neo4j knowledge graph reasoning. Includes a React dashboard SPA served by FastAPI.
 
 ## Ownership
 
-Owns all Python source: FastAPI app, middleware, data models, schemas, services, graph operations, and API routes.
+Owns all Python source: FastAPI app, middleware, data models, schemas, services, graph operations, and API routes. Serves the React SPA frontend (frontend/dist/).
 
 ## Local Contracts
 
@@ -19,6 +19,9 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - No direct DB queries in API routes — all logic flows through services
 - Embedding service falls back to hash-based embedding when sentence-transformers is unavailable
 - Neo4j queries always include WHERE tenant_id for isolation
+- LLM defaults to OpenAI-compatible API on localhost:1234 (configurable via LLM_PROVIDER env var)
+- FastAPI serves the React SPA frontend (frontend/dist/) with catchall routing
+- TenantContextMiddleware excludes frontend routes (/assets/, /login, /services, /documents, /chat, /settings) from auth
 - **Security: `src/config.py` Settings raises `ValueError` if required secrets (database_url, neo4j_*, secret_key) are missing — never use default passwords**
 - **Security: `src/mcp_server.py` raises `RuntimeError` at import time if DATABASE_URL or NEO4J_* env vars are unset**
 
@@ -40,11 +43,11 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 
 ## Child DOX Index
 
-- `src/api/AGENTS.md` — REST API routes: tenants, documents, RAG, auth, departments
-- `src/services/AGENTS.md` — Business logic: auth, department, embedding, ingestion, RAG, vector, graph
-- `src/models/AGENTS.md` — SQLAlchemy ORM models: Tenant, Document, Chunk, Department, User, UserDepartment
+- `src/api/AGENTS.md` — REST API routes: auth, tenants, departments, documents, rag, chat, settings
+- `src/services/AGENTS.md` — Business logic: auth, department, embedding, ingestion, RAG, vector, graph, llm, chat, settings
+- `src/models/AGENTS.md` — SQLAlchemy ORM models: Tenant, Document, Chunk, Department, User, UserDepartment, Conversation, Message, TenantSettings
 - `src/graph/AGENTS.md` — Neo4j integration: client, entity extraction, graph sync (with Department nodes)
-- `src/middleware/AGENTS.md` — Request middleware: JWT + API key auth, tenant/user context injection
-- `src/schemas/AGENTS.md` — Pydantic schemas: request/response validation (auth, department, tenant, document, rag)
+- `src/middleware/AGENTS.md` — Request middleware: JWT + API key auth, tenant/user context injection, frontend route exclusion
+- `src/schemas/AGENTS.md` — Pydantic schemas: request/response validation (auth, department, tenant, document, rag, chat, settings)
 - `src/db/AGENTS.md` — Database session management: async SQLAlchemy engine
 - `src/mcp_server.py` — MCP server: 10 tools exposing RAG, documents, graph, tenants via FastMCP

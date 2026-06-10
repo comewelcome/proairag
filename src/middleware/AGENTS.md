@@ -12,6 +12,9 @@ Owns request pre-processing, authentication, and context injection. Depends on T
 
 - TenantContextMiddleware runs on every request
 - Public paths (/health, /docs, /openapi.json, /redoc) bypass authentication
+- Public API endpoints: POST /api/tenants/, POST /api/auth/login, GET /api/tenants/
+- Frontend SPA routes (/login, /services, /documents, /chat, /settings) bypass auth middleware
+- Frontend static files (/assets/*, /index.html, /favicon.ico, /vite.svg) bypass auth middleware
 - Dual auth: Authorization: Bearer JWT (user-level) or X-API-Key (tenant-level)
 - JWT auth injects: user_id, user, is_tenant_admin, auth_mode
 - API key auth injects: tenant_id, tenant, auth_mode (no user context = admin-level access)

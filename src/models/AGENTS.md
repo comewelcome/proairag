@@ -19,12 +19,15 @@ Owns all database table definitions. Depends on src/db/session.py for the Base c
 
 ## Model Index
 
-- tenant.py — Tenant: id, name, api_key, is_active, created_at (+ departments, users relationships)
+- tenant.py — Tenant: id, name, api_key, is_active, created_at (+ departments, users, conversations relationships)
 - document.py — Document: tenant_id, department_id, title, content, source, content_type, is_processed
 - chunk.py — Chunk: tenant_id, document_id, content, embedding (vector), chunk_index
 - department.py — Department: tenant_id, name, description, created_at
 - user.py — User: tenant_id, email, password_hash, full_name, is_tenant_admin, is_active
 - user_department.py — UserDepartment: user_id, department_id, role (junction table)
+- conversation.py — Conversation: tenant_id, department_id, title, created_at, updated_at (+ messages relationship)
+- message.py — Message: conversation_id, role (user/assistant), content, sources (JSON), graph_context (JSON)
+- tenant_settings.py — TenantSettings: tenant_id (PK), chunk_size, chunk_overlap, top_k, embedding_model, llm_provider, llm_model, openai_api_key, openai_api_base, ollama_*
 
 ## Work Guidance
 

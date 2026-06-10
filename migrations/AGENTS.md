@@ -25,6 +25,8 @@ SQL:
 - 004_create_departments_users.sql — Departments, Users, User_Departments tables + department_id on documents
 - 005_rls_policies.sql — Row-Level Security policies for tenant isolation
 - 006_rls_departments.sql — RLS policies for departments table
+- 007_create_conversations.sql — Conversations + Messages tables for chat history (tenant-isolated)
+- 008_create_tenant_settings.sql — Per-tenant RAG configuration (chunk_size, top_k, LLM provider, etc.)
 
 Cypher:
 - 001_constraints.cypher — Unique constraints for Tenant, Document, Chunk, Entity

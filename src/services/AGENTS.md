@@ -26,9 +26,11 @@ Owns all business logic. Depends on models for data access, schemas for validati
 - vector_service.py — pgvector similarity search (tenant + department isolated)
 - graph_service.py — Neo4j graph queries (entity context, graph summary, concept lookup)
 - rag_service.py — Hybrid RAG orchestration (vector + graph + LLM) + department filtering
-- llm_service.py — LLM provider interface (OpenAI, Local/Ollama)
+- llm_service.py — LLM provider interface (OpenAI-compatible API on localhost:1234, Local/Ollama, Fallback)
 - auth_service.py — JWT auth: password hashing, token generation/validation, user registration
 - department_service.py — Department CRUD, user assignment, department membership queries
+- chat_service.py — Chat sessions CRUD, message sending with RAG integration, conversation management
+- settings_service.py — Per-tenant RAG settings CRUD, system stats (docs, chunks, entities, DB connectivity)
 
 ## Work Guidance
 
