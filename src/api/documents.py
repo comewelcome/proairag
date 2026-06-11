@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy import select, func, delete as sa_delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.session import get_db
-from src.middleware.tenant import TenantId
+from src.middleware.tenant import TenantId, UserId, IsTenantAdmin
 from src.models.document import Document
 from src.models.chunk import Chunk
 from src.services.ingestion_service import get_ingestion_service
@@ -18,12 +18,26 @@ async def list_documents(
     limit: int = 100,
     db: AsyncSession = Depends(get_db),
     tenant_id: TenantId = ...,  # type: ignore
+    user_id: UserId = ...,  # type: ignore
+    is_tenant_admin: IsTenantAdmin = ...,  # type: ignore
 ):
-    """List documents for the current tenant, optionally filtered by department."""
+    """List documents for the current tenant, filtered by user departments."""
     query = select(Document).where(
         Document.tenant_id == tenant_id
-    ).order_by(Document.created_at.desc()).limit(limit)
+    ).order_by(Document.created_at.desc())
 
+    # Department filtering: admin sees all, non-admin only sees their departments
+    if not is_tenant_admin:
+        from src.services.department_service import get_department_service
+        dept_service = get_department_service(db)
+        user_dept_ids = await dept_service.get_user_department_ids(user_id) if user_id else []
+        if user_dept_ids:
+            query = query.where(Document.department_id.in_(user_dept_ids))
+        else:
+            # User has no departments — return nothing
+            return []
+
+    # Additional filter if explicit department_id provided
     if department_id:
         try:
             dept_uuid = uuid.UUID(department_id)
@@ -31,6 +45,7 @@ async def list_documents(
         except ValueError:
             pass
 
+    query = query.limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
 
@@ -40,6 +55,8 @@ async def delete_document(
     doc_id: str,
     db: AsyncSession = Depends(get_db),
     tenant_id: TenantId = ...,  # type: ignore
+    user_id: UserId = ...,  # type: ignore
+    is_tenant_admin: IsTenantAdmin = ...,  # type: ignore
 ):
     """Delete a document and its chunks."""
     try:
@@ -47,15 +64,19 @@ async def delete_document(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid document ID")
 
-    # Delete chunks first
-    await db.execute(
-        sa_delete(Chunk).where(Chunk.document_id == doc_uuid)
-    )
-
     doc = await db.get(Document, doc_uuid)
     if not doc or doc.tenant_id != tenant_id:
         raise HTTPException(status_code=404, detail="Document not found")
 
+    # Non-admin can only delete docs in their departments
+    if not is_tenant_admin and user_id:
+        from src.services.department_service import get_department_service
+        dept_service = get_department_service(db)
+        user_dept_ids = await dept_service.get_user_department_ids(user_id)
+        if doc.department_id not in user_dept_ids:
+            raise HTTPException(status_code=403, detail="Access denied: document not in your department")
+
+    await db.execute(sa_delete(Chunk).where(Chunk.document_id == doc_uuid))
     await db.delete(doc)
     await db.commit()
     return {"status": "deleted"}
@@ -68,13 +89,12 @@ async def upload_document_file(
     department_id: str | None = Form(None),
     db: AsyncSession = Depends(get_db),
     tenant_id: TenantId = ...,  # type: ignore
+    user_id: UserId = ...,  # type: ignore
+    is_tenant_admin: IsTenantAdmin = ...,  # type: ignore
 ):
     """Upload a file (PDF, TXT, DOCX, CSV) and ingest it."""
-    # Read file content
     content_bytes = await file.read()
     content_type = file.content_type or "application/octet-stream"
-
-    # Parse based on content type
     doc_title = title or file.filename or "Untitled"
     max_size = 50 * 1024 * 1024  # 50MB
     if len(content_bytes) > max_size:
@@ -88,6 +108,14 @@ async def upload_document_file(
             dept_uuid = uuid.UUID(department_id)
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid department ID")
+
+    # Non-admin can only upload to their departments
+    if not is_tenant_admin and user_id:
+        from src.services.department_service import get_department_service
+        dept_service = get_department_service(db)
+        user_dept_ids = await dept_service.get_user_department_ids(user_id)
+        if dept_uuid and dept_uuid not in user_dept_ids:
+            raise HTTPException(status_code=403, detail="Access denied: cannot upload to this department")
 
     service = get_ingestion_service(db)
     document = await service.ingest_document(

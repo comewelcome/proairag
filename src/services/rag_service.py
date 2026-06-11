@@ -49,6 +49,7 @@ class RAGService:
                             tenant_id=tenant_id,
                             entity_names=query_entities,
                             depth=rag_query.graph_depth,
+                            department_ids=department_ids,
                         ),
                         timeout=10,
                     )

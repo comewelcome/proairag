@@ -24,14 +24,17 @@ class VectorService:
         query_embedding = await self.embedding_service.embed_text(query)
         embedding_str = self._embedding_to_string(query_embedding)
 
-        # Build department filter
+        # Department filtering: admin sees all, non-admin only sees their departments
         dept_filter = ""
         dept_params: dict = {}
-        if department_ids and not is_tenant_admin:
-            dept_uuids = [str(d) for d in department_ids]
-            # Documents with NULL department_id are visible to all (backward compat)
-            dept_filter = "AND (d.department_id IS NULL OR d.department_id = ANY(:department_ids))"
-            dept_params["department_ids"] = dept_uuids
+        if not is_tenant_admin:
+            if department_ids:
+                dept_uuids = [str(d) for d in department_ids]
+                dept_filter = "AND d.department_id = ANY(:department_ids)"
+                dept_params["department_ids"] = dept_uuids
+            else:
+                # User has no departments — return nothing
+                return []
 
         result = await self.db.execute(
             text(f"""

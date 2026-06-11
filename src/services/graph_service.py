@@ -7,18 +7,32 @@ class GraphService:
         self.neo4j = get_neo4j_client()
 
     async def get_entity_context(
-        self, tenant_id: uuid.UUID, entity_names: list[str], depth: int = 2
+        self, tenant_id: uuid.UUID, entity_names: list[str], depth: int = 2,
+        department_ids: list[uuid.UUID] | None = None,
     ) -> list[dict]:
         if not entity_names:
             return []
 
+        # Filter entities by department via their chunk -> document -> department chain
+        dept_filter = ""
+        dept_params: dict = {}
+        if department_ids:
+            dept_uuids = [str(d) for d in department_ids]
+            dept_filter = "AND d.department_id IN $department_ids"
+            dept_params["department_ids"] = dept_uuids
+
         # Case-insensitive matching for entity names
-        # Use explicit WHERE instead of IN in node pattern (Neo4j 5 limitation)
+        # Only return entities linked to documents in user's departments
         query = f"""
         MATCH (e:Entity)
         WHERE e.tenant_id = $tenant_id
           AND e.confidence > 0.6
           AND any(name IN $names WHERE toLower(name) = toLower(e.name))
+        OPTIONAL MATCH (e)<-[:MENTIONS]-(c:Chunk)-[:HAS_CHUNK|HAS_CHUNK]->(d:Document)
+        WHERE d.tenant_id = $tenant_id
+          {dept_filter}
+        WITH e, collect(distinct d) as docs
+        WHERE size(docs) > 0
         WITH collect(e) as entities
         UNWIND entities as start_node
         OPTIONAL MATCH path = (start_node)-[*1..{depth}]-(related:Entity)
@@ -37,6 +51,7 @@ class GraphService:
             results = await self.neo4j.execute(query, {
                 "tenant_id": str(tenant_id),
                 "names": entity_names,
+                **dept_params,
             })
         except Exception:
             return []
