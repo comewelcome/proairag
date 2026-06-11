@@ -9,7 +9,7 @@ export function Settings() {
     chunk_size: 512,
     chunk_overlap: 64,
     top_k: 5,
-    embedding_model: 'sentence-transformers/all-MiniLM-L6-v2',
+    embedding_model: 'sentence-transformers/paraphrase-MiniLM-L3-v2',
     llm_provider: 'openai',
     llm_model: 'gpt-4o-mini',
     openai_api_key: '',
@@ -104,6 +104,7 @@ export function Settings() {
               value={settings.embedding_model}
               onChange={(e) => setSettings({ ...settings, embedding_model: e.target.value })}
             >
+              <option value="sentence-transformers/paraphrase-MiniLM-L3-v2">paraphrase-MiniLM-L3-v2 (384d)</option>
               <option value="sentence-transformers/all-MiniLM-L6-v2">all-MiniLM-L6-v2 (384d)</option>
               <option value="sentence-transformers/all-mpnet-base-v2">all-mpnet-base-v2 (768d)</option>
               <option value="openai/text-embedding-3-small">text-embedding-3-small</option>

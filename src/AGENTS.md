@@ -17,7 +17,7 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - tenant_id is injected via request.state by TenantContextMiddleware
 - Use Pydantic v2 for all request/response schemas
 - No direct DB queries in API routes — all logic flows through services
-- Embedding service falls back to hash-based embedding when sentence-transformers is unavailable
+- Embedding service uses sentence-transformers/paraphrase-MiniLM-L3-v2 by default, falls back to hash-based embedding when sentence-transformers is unavailable
 - Neo4j queries always include WHERE tenant_id for isolation
 - LLM defaults to OpenAI-compatible API on localhost:1234 (configurable via LLM_PROVIDER env var)
 - FastAPI serves the React SPA frontend (frontend/dist/) with catchall routing

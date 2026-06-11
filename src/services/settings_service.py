@@ -23,7 +23,7 @@ class SettingsService:
             chunk_size=512,
             chunk_overlap=64,
             top_k=5,
-            embedding_model="sentence-transformers/all-MiniLM-L6-v2",
+            embedding_model="sentence-transformers/paraphrase-MiniLM-L3-v2",
             llm_provider="openai",
             llm_model="gpt-4o-mini",
             openai_api_base="http://localhost:1234/v1",

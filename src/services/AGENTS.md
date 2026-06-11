@@ -21,7 +21,7 @@ Owns all business logic. Depends on models for data access, schemas for validati
 ## Service Index
 
 - tenant_service.py — Tenant CRUD (create, get, update, deactivate) + admin user creation
-- embedding_service.py — Text embeddings (sentence-transformers or hash fallback)
+- embedding_service.py — Text embeddings (sentence-transformers/paraphrase-MiniLM-L3-v2 or hash fallback)
 - ingestion_service.py — Document ingestion (chunking + embedding + storage) + department_id
 - vector_service.py — pgvector similarity search (tenant + department isolated)
 - graph_service.py — Neo4j graph queries (entity context, graph summary, concept lookup)

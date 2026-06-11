@@ -17,7 +17,7 @@ class TenantSettings(Base):
     chunk_overlap: Mapped[int] = mapped_column(Integer, default=64)
     top_k: Mapped[int] = mapped_column(Integer, default=5)
     embedding_model: Mapped[str] = mapped_column(
-        String(256), default="sentence-transformers/all-MiniLM-L6-v2"
+        String(256), default="sentence-transformers/paraphrase-MiniLM-L3-v2"
     )
     llm_provider: Mapped[str] = mapped_column(String(32), default="openai")
     llm_model: Mapped[str | None] = mapped_column(String(128))

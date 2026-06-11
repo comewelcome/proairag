@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS tenant_settings (
     chunk_size INTEGER NOT NULL DEFAULT 512,
     chunk_overlap INTEGER NOT NULL DEFAULT 64,
     top_k INTEGER NOT NULL DEFAULT 5,
-    embedding_model VARCHAR(256) NOT NULL DEFAULT 'sentence-transformers/all-MiniLM-L6-v2',
+    embedding_model VARCHAR(256) NOT NULL DEFAULT 'sentence-transformers/paraphrase-MiniLM-L3-v2',
     llm_provider VARCHAR(32) NOT NULL DEFAULT 'openai',
     llm_model VARCHAR(128) DEFAULT NULL,
     openai_api_key TEXT DEFAULT NULL,

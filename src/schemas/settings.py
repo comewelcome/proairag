@@ -6,7 +6,7 @@ class RagSettingsUpdate(BaseModel):
     chunk_overlap: int = Field(64, ge=0, le=512)
     top_k: int = Field(5, ge=1, le=50)
     embedding_model: str = Field(
-        default="sentence-transformers/all-MiniLM-L6-v2"
+        default="sentence-transformers/paraphrase-MiniLM-L3-v2"
     )
     llm_provider: str = Field(default="openai")
     llm_model: str | None = None

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     neo4j_password: str = ""
 
     # Embedding
-    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model: str = "sentence-transformers/paraphrase-MiniLM-L3-v2"
     embedding_dimension: int = 384
 
     # API

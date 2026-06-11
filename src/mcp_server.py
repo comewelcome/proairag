@@ -10,7 +10,7 @@ Environment variables (all required — no safe defaults):
     NEO4J_USER         — Neo4j username
     NEO4J_PASSWORD     — Neo4j password
     API_KEY            — Tenant API key for authentication (required for write tools)
-    EMBEDDING_MODEL    — Sentence-transformers model name (default: sentence-transformers/all-MiniLM-L6-v2)
+    EMBEDDING_MODEL    — Sentence-transformers model name (default: sentence-transformers/paraphrase-MiniLM-L3-v2)
     EMBEDDING_DIMENSION — Embedding vector dimension (default: 384)
 """
 
@@ -107,7 +107,7 @@ _embedding_model = None
 def _get_embedding_model():
     global _embedding_model
     if _embedding_model is None:
-        model_name = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+        model_name = os.getenv("EMBEDDING_MODEL", "sentence-transformers/paraphrase-MiniLM-L3-v2")
         try:
             from sentence_transformers import SentenceTransformer
             _embedding_model = SentenceTransformer(model_name)

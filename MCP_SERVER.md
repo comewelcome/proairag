@@ -66,7 +66,7 @@ fastmcp run src/mcp_server.py:mcp
 | `NEO4J_USER` | *(required)* | Neo4j username |
 | `NEO4J_PASSWORD` | *(required)* | Neo4j password |
 | `API_KEY` | (empty) | Tenant API key for auth (optional — use tenant_id param instead) |
-| `EMBEDDING_MODEL` | `sentence-transformers/all-MiniLM-L6-v2` | Embedding model |
+| `EMBEDDING_MODEL` | `sentence-transformers/paraphrase-MiniLM-L3-v2` | Embedding model |
 | `EMBEDDING_DIMENSION` | `384` | Embedding vector dimension |
 | `CHUNK_SIZE` | `512` | Document chunk size in words |
 | `CHUNK_OVERLAP` | `64` | Chunk overlap in words |
