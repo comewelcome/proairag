@@ -1,6 +1,6 @@
 import uuid
 from src.graph.neo4j_client import get_neo4j_client
-from src.graph.entity_extractor import EntityExtractor, get_entity_extractor
+from src.graph.entity_extractor import EntityExtractor, Entity, get_entity_extractor
 
 
 class GraphSyncService:
@@ -47,7 +47,7 @@ class GraphSyncService:
                 },
             )
 
-        all_entities_by_name: dict[str, dict] = {}
+        all_entities_by_name: dict[str, Entity] = {}
 
         for chunk_data in chunks:
             chunk_id = chunk_data["id"]
@@ -99,12 +99,12 @@ class GraphSyncService:
         await self._create_cooccurrence_relations(tenant_id, all_entities_by_name)
 
     async def _create_cooccurrence_relations(
-        self, tenant_id: uuid.UUID, entities: dict[str, dict]
+        self, tenant_id: uuid.UUID, entities: dict[str, Entity]
     ):
         entity_list = list(entities.values())
         for i, e1 in enumerate(entity_list):
             for e2 in entity_list[i + 1 :]:
-                if e1.get("type") != e2.get("type"):
+                if e1.type != e2.type:
                     await self.neo4j.execute(
                         """
                         MATCH (a:Entity {id: $id1, tenant_id: $tenant_id}),
@@ -114,9 +114,9 @@ class GraphSyncService:
                         """,
                         {
                             "tenant_id": str(tenant_id),
-                            "id1": e1.get("id"),
-                            "id2": e2.get("id"),
-                            "rel_type": f"{e1.get('type', 'ENTITY')}_TO_{e2.get('type', 'ENTITY')}",
+                            "id1": e1.id,
+                            "id2": e2.id,
+                            "rel_type": f"{e1.type}_TO_{e2.type}",
                         },
                     )
 

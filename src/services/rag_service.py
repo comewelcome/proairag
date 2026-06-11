@@ -42,11 +42,20 @@ class RAGService:
         if rag_query.include_graph_context:
             query_entities = self._extract_query_entities(rag_query.query)
             if query_entities:
-                graph_context = await self.graph_service.get_entity_context(
-                    tenant_id=tenant_id,
-                    entity_names=query_entities,
-                    depth=rag_query.graph_depth,
-                )
+                import asyncio
+                try:
+                    graph_context = await asyncio.wait_for(
+                        self.graph_service.get_entity_context(
+                            tenant_id=tenant_id,
+                            entity_names=query_entities,
+                            depth=rag_query.graph_depth,
+                        ),
+                        timeout=10,
+                    )
+                except asyncio.TimeoutError:
+                    graph_context = []
+                except Exception:
+                    graph_context = []
 
         context_parts = self._build_context(vector_results, graph_context)
         answer = await self._generate_answer(rag_query.query, context_parts)

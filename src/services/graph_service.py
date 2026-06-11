@@ -12,21 +12,25 @@ class GraphService:
         if not entity_names:
             return []
 
-        # Use WHERE clause instead of IN in node pattern (Cypher limitation)
+        # Case-insensitive matching for entity names
+        # Use explicit WHERE instead of IN in node pattern (Neo4j 5 limitation)
         query = f"""
-        MATCH (t:Tenant {{id: $tenant_id}})
-        MATCH (e:Entity {{tenant_id: $tenant_id}})
-        WHERE e.name IN $names
-        OPTIONAL MATCH path = (e)-[*1..{depth}]-(related)
+        MATCH (e:Entity)
+        WHERE e.tenant_id = $tenant_id
+          AND e.confidence > 0.6
+          AND any(name IN $names WHERE toLower(name) = toLower(e.name))
+        WITH collect(e) as entities
+        UNWIND entities as start_node
+        OPTIONAL MATCH path = (start_node)-[*1..{depth}]-(related:Entity)
         WHERE related.tenant_id = $tenant_id
         RETURN
-            e.name as entity,
-            e.type as entity_type,
+            start_node.name as entity,
+            start_node.type as entity_type,
             related.name as related_name,
             related.type as related_type,
             relationships(path) as rels,
             length(path) as distance
-        LIMIT 50
+        LIMIT 30
         """
 
         try:

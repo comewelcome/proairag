@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.document import Document
 from src.models.chunk import Chunk
 from src.services.embedding_service import get_embedding_service
+from src.graph.graph_sync import get_graph_sync_service
 from src.config import get_settings
 
 
@@ -11,6 +12,7 @@ class IngestionService:
         self.db = db
         self.embedding_service = get_embedding_service()
         self.settings = get_settings()
+        self.graph_sync = get_graph_sync_service()
 
     async def ingest_document(
         self,
@@ -36,6 +38,7 @@ class IngestionService:
         chunks_text = self._chunk_text(content)
         embeddings = await self.embedding_service.embed_texts(chunks_text)
 
+        chunks_data = []
         for i, (text, embedding) in enumerate(zip(chunks_text, embeddings)):
             chunk = Chunk(
                 tenant_id=tenant_id,
@@ -45,10 +48,28 @@ class IngestionService:
                 chunk_index=i,
             )
             self.db.add(chunk)
+            chunks_data.append({
+                "id": chunk.id,
+                "content": text,
+                "chunk_index": i,
+            })
 
         document.is_processed = True
         await self.db.commit()
         await self.db.refresh(document)
+
+        # Sync to Neo4j knowledge graph
+        try:
+            await self.graph_sync.sync_document(
+                tenant_id=tenant_id,
+                doc_id=document.id,
+                chunks=chunks_data,
+                department_id=department_id,
+            )
+        except Exception as e:
+            # Log but don't fail ingestion if graph is down
+            pass
+
         return document
 
     def _chunk_text(self, text: str) -> list[str]:
