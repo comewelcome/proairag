@@ -27,6 +27,7 @@ class SettingsService:
             llm_provider="openai",
             llm_model="gpt-4o-mini",
             openai_api_base="http://localhost:1234/v1",
+            llm_max_tokens=500,
         )
 
     async def update_settings(

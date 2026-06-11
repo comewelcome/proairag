@@ -14,6 +14,7 @@ class RagSettingsUpdate(BaseModel):
     openai_api_base: str | None = None
     ollama_base_url: str | None = None
     ollama_model: str | None = None
+    llm_max_tokens: int = 500
 
 
 class RagSettingsResponse(BaseModel):
@@ -27,6 +28,7 @@ class RagSettingsResponse(BaseModel):
     openai_api_base: str | None = None
     ollama_base_url: str | None = None
     ollama_model: str | None = None
+    llm_max_tokens: int = 500
 
     model_config = {"from_attributes": True}
 

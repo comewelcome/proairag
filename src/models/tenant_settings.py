@@ -25,6 +25,7 @@ class TenantSettings(Base):
     openai_api_base: Mapped[str | None] = mapped_column(String(256))
     ollama_base_url: Mapped[str | None] = mapped_column(String(256))
     ollama_model: Mapped[str | None] = mapped_column(String(128))
+    llm_max_tokens: Mapped[int] = mapped_column(Integer, default=500)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

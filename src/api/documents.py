@@ -106,18 +106,17 @@ def _parse_file_content(data: bytes, content_type: str, filename: str | None) ->
     fn = filename or ""
     ct = (content_type or "").lower()
 
-    # Try pymupdf for PDF
+    # Try LiteParse for PDF
     if "pdf" in ct or fn.endswith(".pdf"):
         try:
-            import fitz  # PyMuPDF
-            doc = fitz.open(stream=data, filetype="pdf")
-            text = "\n".join(page.get_text() for page in doc)
-            doc.close()
-            return text or "(empty PDF)"
+            from liteparse import LiteParse
+            parser = LiteParse(ocr_enabled=False)
+            result = parser.parse(data)
+            return result.text or "(empty PDF)"
         except ImportError:
             raise HTTPException(
                 status_code=500,
-                detail="PDF parsing requires pymupdf. Install with: pip install pymupdf"
+                detail="PDF parsing requires liteparse. Install with: pip install liteparse"
             )
 
     # Try python-docx for DOCX

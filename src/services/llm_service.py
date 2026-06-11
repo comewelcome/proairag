@@ -9,10 +9,11 @@ class LLMProvider(ABC):
 
 
 class OpenAIProvider(LLMProvider):
-    def __init__(self, api_key: str = "", model: str = "gpt-4o-mini", base_url: str = ""):
+    def __init__(self, api_key: str = "", model: str = "gpt-4o-mini", base_url: str = "", max_tokens: int = 500):
         self.api_key = api_key
         self.model = model
         self.base_url = base_url or "https://api.openai.com/v1"
+        self.max_tokens = max_tokens
 
     async def generate(self, prompt: str, system_prompt: str = "") -> str:
         import httpx
@@ -27,23 +28,27 @@ class OpenAIProvider(LLMProvider):
                 {"role": "system", "content": system_prompt or "You are a helpful assistant."},
                 {"role": "user", "content": prompt},
             ],
+            "max_tokens": self.max_tokens,
         }
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=headers,
                 json=body,
-                timeout=120,
+                timeout=300,
             )
             response.raise_for_status()
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            # Handle reasoning models that return content in reasoning_content
+            message = data["choices"][0]["message"]
+            return message.get("content") or message.get("reasoning_content") or ""
 
 
 class LocalProvider(LLMProvider):
-    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3.1"):
+    def __init__(self, base_url: str = "http://localhost:11434", model: str = "llama3.1", max_tokens: int = 500):
         self.base_url = base_url
         self.model = model
+        self.max_tokens = max_tokens
 
     async def generate(self, prompt: str, system_prompt: str = "") -> str:
         import httpx
@@ -54,6 +59,7 @@ class LocalProvider(LLMProvider):
                 {"role": "user", "content": prompt},
             ],
             "stream": False,
+            "max_tokens": self.max_tokens,
         }
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -63,7 +69,8 @@ class LocalProvider(LLMProvider):
             )
             response.raise_for_status()
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            message = data["choices"][0]["message"]
+            return message.get("content") or message.get("reasoning_content") or ""
 
 
 class FallbackProvider(LLMProvider):
@@ -81,8 +88,13 @@ def get_llm_provider() -> LLMProvider:
             api_key=settings.openai_api_key,
             model=settings.openai_model,
             base_url=settings.openai_api_base,
+            max_tokens=settings.llm_max_tokens,
         )
     elif provider == "ollama":
-        return LocalProvider(base_url=settings.ollama_base_url, model=settings.ollama_model)
+        return LocalProvider(
+            base_url=settings.ollama_base_url,
+            model=settings.ollama_model,
+            max_tokens=settings.llm_max_tokens,
+        )
     else:
         return FallbackProvider()

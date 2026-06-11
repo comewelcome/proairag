@@ -27,7 +27,7 @@ Owns all database table definitions. Depends on src/db/session.py for the Base c
 - user_department.py — UserDepartment: user_id, department_id, role (junction table)
 - conversation.py — Conversation: tenant_id, department_id, title, created_at, updated_at (+ messages relationship)
 - message.py — Message: conversation_id, role (user/assistant), content, sources (JSON), graph_context (JSON)
-- tenant_settings.py — TenantSettings: tenant_id (PK), chunk_size, chunk_overlap, top_k, embedding_model, llm_provider, llm_model, openai_api_key, openai_api_base, ollama_*
+- tenant_settings.py — TenantSettings: tenant_id (PK), chunk_size, chunk_overlap, top_k, embedding_model, llm_provider, llm_model, openai_api_key, openai_api_base, ollama_*, llm_max_tokens
 
 ## Work Guidance
 

@@ -11,9 +11,11 @@ export function Settings() {
     top_k: 5,
     embedding_model: 'sentence-transformers/paraphrase-MiniLM-L3-v2',
     llm_provider: 'openai',
-    llm_model: 'gpt-4o-mini',
+    llm_model: 'Qwen3.6-27B-UD-Q5_K_XL.gguf',
+    openai_api_base: 'http://localhost:1234/v1',
     openai_api_key: '',
     ollama_base_url: 'http://localhost:11434',
+    llm_max_tokens: 500,
   });
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);

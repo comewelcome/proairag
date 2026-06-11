@@ -59,7 +59,9 @@ export interface RagSettings {
   llm_provider: 'openai' | 'ollama' | 'fallback';
   llm_model?: string;
   openai_api_key?: string;
+  openai_api_base?: string;
   ollama_base_url?: string;
+  llm_max_tokens?: number;
 }
 
 export interface LoginRequest {

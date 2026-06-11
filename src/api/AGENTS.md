@@ -35,7 +35,7 @@ All API routes are prefixed with `/api/` for the dashboard frontend integration.
 - DELETE /api/departments/{id}/users/{user_id} — Remove user from department
 - GET /api/documents/ — List documents (tenant-isolated, optional department filter)
 - POST /api/documents/ — Ingest document from JSON payload (tenant-isolated, optional department_id)
-- POST /api/documents/upload — Upload file (PDF/TXT/DOCX), parse, chunk, embed, store
+- POST /api/documents/upload — Upload file (PDF/TXT/DOCX), parse with LiteParse, chunk, embed, store
 - DELETE /api/documents/{doc_id} — Delete document and chunks
 - POST /api/rag/query — Hybrid RAG query (vector + graph, tenant + department isolated)
 - POST /api/chat/sessions/ — Create new chat session
