@@ -19,7 +19,7 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - No direct DB queries in API routes — all logic flows through services
 - Embedding service uses sentence-transformers/paraphrase-MiniLM-L3-v2 by default, falls back to hash-based embedding when sentence-transformers is unavailable
 - Neo4j queries always include WHERE tenant_id for isolation
-- LLM defaults to OpenAI-compatible API on localhost:1234 (llama.cpp Qwen3.6-27B-UD-Q5_K_XL), configurable via LLM_PROVIDER env var, max 500 tokens, 300s timeout
+- LLM defaults to OpenAI-compatible API on host.docker.internal:1234 (llama.cpp Qwen3.6-27B-UD-Q4_K_XL.gguf), configurable via LLM_PROVIDER env var, max 500 tokens, 300s timeout. Docker Compose sets extra_hosts for host.docker.internal resolution.
 - FastAPI serves the React SPA frontend (frontend/dist/) with catchall routing
 - TenantContextMiddleware excludes frontend routes (/assets/, /, /login, /services, /documents, /chat, /settings) from auth
 - **Security: `src/config.py` Settings raises `ValueError` if required secrets (database_url, neo4j_*, secret_key) are missing — never use default passwords**

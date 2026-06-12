@@ -26,7 +26,7 @@ Owns all business logic. Depends on models for data access, schemas for validati
 - vector_service.py — pgvector similarity search (tenant + department isolated)
 - graph_service.py — Neo4j graph queries (entity context, graph summary, concept lookup)
 - rag_service.py — Hybrid RAG orchestration (vector + graph + LLM) + department filtering
-- llm_service.py — LLM provider interface (OpenAI-compatible API on localhost:1234 llama.cpp, Local/Ollama, Fallback). Supports reasoning models (reasoning_content). max 500 tokens, 300s timeout.
+- llm_service.py — LLM provider interface (OpenAI-compatible API via host.docker.internal:1234 llama.cpp Qwen3.6-27B-UD-Q4_K_XL, Local/Ollama, Fallback). Supports reasoning models (reasoning_content). max 500 tokens, 300s timeout.
 - auth_service.py — JWT auth: password hashing, token generation/validation, user registration
 - department_service.py — Department CRUD, user assignment, department membership queries
 - chat_service.py — Chat sessions CRUD, message sending with RAG integration, conversation management
