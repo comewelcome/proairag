@@ -1,6 +1,7 @@
 import uuid
 from typing import Annotated, Any
 from fastapi import Request, HTTPException, Depends
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from sqlalchemy import select
@@ -8,6 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.tenant import Tenant
 from src.models.user import User
 from src.db.session import async_session
+
+
+def _auth_error(status_code: int, detail: str) -> JSONResponse:
+    return JSONResponse(
+        status_code=status_code,
+        content={"detail": detail},
+        headers={"WWW-Authenticate": "Bearer"} if status_code == 401 else {},
+    )
 
 
 class TenantContextMiddleware(BaseHTTPMiddleware):
@@ -44,19 +53,13 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
                 request.state.auth_mode = "jwt"
                 response = await call_next(request)
                 return response
-            # Invalid JWT - return 401 immediately
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid or expired token",
-            )
+            # Invalid JWT - return 401 directly (no raise — BaseHTTPMiddleware swallows it)
+            return _auth_error(401, "Invalid or expired token")
 
         # Fall back to API key auth
         api_key = request.headers.get("X-API-Key")
         if not api_key:
-            raise HTTPException(
-                status_code=401,
-                detail="Missing authentication. Provide Authorization: Bearer *** or X-API-Key header",
-            )
+            return _auth_error(401, "Missing authentication. Provide Authorization: Bearer *** or X-API-Key header")
 
         async with async_session() as session:
             result = await session.execute(
@@ -67,7 +70,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             tenant = result.scalar_one_or_none()
 
         if not tenant:
-            raise HTTPException(status_code=403, detail="Invalid or inactive API key")
+            return _auth_error(403, "Invalid or inactive API key")
 
         request.state.tenant_id = tenant.id
         request.state.tenant = tenant
