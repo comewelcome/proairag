@@ -30,11 +30,11 @@ class VectorService:
         if not is_tenant_admin:
             if department_ids:
                 dept_uuids = [str(d) for d in department_ids]
-                dept_filter = "AND d.department_id = ANY(:department_ids)"
+                dept_filter = "AND (d.department_id = ANY(:department_ids) OR d.department_id IS NULL)"
                 dept_params["department_ids"] = dept_uuids
             else:
-                # User has no departments — return nothing
-                return []
+                # User has no departments — only show documents without department
+                dept_filter = "AND d.department_id IS NULL"
 
         result = await self.db.execute(
             text(f"""

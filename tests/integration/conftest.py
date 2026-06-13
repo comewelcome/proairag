@@ -149,22 +149,22 @@ async def tenant_b(client):
 
 
 @pytest.fixture
-def hr_token(tenant_data):
+async def hr_token(client, tenant_a):
     """JWT token for HR user."""
     from src.services.auth_service import AuthService
 
-    user = tenant_data["user_hr"]
+    user = tenant_a["user_hr"]
     return AuthService.create_access_token(
         user.id, user.tenant_id, user.is_tenant_admin
     )
 
 
 @pytest.fixture
-def compta_token(tenant_data):
+async def compta_token(client, tenant_a):
     """JWT token for Compta user."""
     from src.services.auth_service import AuthService
 
-    user = tenant_data["user_compta"]
+    user = tenant_a["user_compta"]
     return AuthService.create_access_token(
         user.id, user.tenant_id, user.is_tenant_admin
     )

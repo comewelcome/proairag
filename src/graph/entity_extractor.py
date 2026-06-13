@@ -32,7 +32,7 @@ class EntityExtractor:
     PATTERNS = {
         "EMAIL": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
         "PHONE": r"\+?[1-9]\d{1,14}",
-        "DATE": r"\b(?:\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})\b",
+        "DATE": r"\b(?:\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4})\b",
         "URL": r"https?://[^\s]+",
         "MONEY": r"\$?\d+(?:,\d{3})*(?:\.\d{2})?",
     }
@@ -79,14 +79,13 @@ class EntityExtractor:
         all_caps = re.findall(r"\b[A-Z]{2,}(?:\s+[A-Z]{2,})+\b", text)
         # Mixed + caps combo: "Mohammed HAOUACH", "Jean DUPONT"
         mixed_caps = re.findall(r"\b[A-Z][a-z]+\s+[A-Z]{2,}\b", text)
+        # Single-word acronyms (3+ uppercase letters): "API", "HTTP", "HTTPS"
+        acronyms = re.findall(r"\b[A-Z]{3,}\b", text)
         filtered = [
-            n for n in proper_nouns + all_caps + mixed_caps
-            if n not in NOISE_WORDS and len(n) > 3
+            n for n in proper_nouns + all_caps + mixed_caps + acronyms
+            if n not in NOISE_WORDS and len(n) >= 3
         ]
         return list(set(filtered))[:MAX_CONCEPTS]
-
-    async def extract_with_llm(self, text: str) -> list[Entity]:
-        return self.extract(text)
 
 
 def get_entity_extractor() -> EntityExtractor:

@@ -68,7 +68,8 @@ class SettingsService:
 
         # Check database connections
         postgres_ok = True
-        neo4j_ok = True
+        neo4j_ok = False
+        entity_count = 0
 
         try:
             await self.db.execute(select(func.now()))
@@ -80,17 +81,12 @@ class SettingsService:
             client = get_neo4j_client()
             if client:
                 await client.execute("RETURN 1")
-        except Exception:
-            neo4j_ok = False
+                neo4j_ok = True
 
-        # Get Neo4j entity count
-        entity_count = 0
-        try:
-            from src.graph.neo4j_client import get_neo4j_client
-            client = get_neo4j_client()
-            if client:
+                # Get Neo4j entity count
                 result = await client.execute(
-                    f"MATCH (e:Entity {{tenant_id: '{tenant_id}'}}) RETURN count(e)"
+                    "MATCH (e:Entity {tenant_id: $tenant_id}) RETURN count(e)",
+                    {"tenant_id": str(tenant_id)},
                 )
                 if result and len(result) > 0:
                     entity_count = int(str(result[0][0]))

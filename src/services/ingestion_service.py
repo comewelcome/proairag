@@ -67,8 +67,10 @@ class IngestionService:
                 department_id=department_id,
             )
         except Exception as e:
-            # Log but don't fail ingestion if graph is down
-            pass
+            import logging
+            logging.getLogger(__name__).warning(
+                "Graph sync failed for document %s: %s", document.id, e
+            )
 
         return document
 

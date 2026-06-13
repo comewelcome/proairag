@@ -42,8 +42,7 @@ class Settings(BaseSettings):
     # LLM generation
     llm_max_tokens: int = 500
 
-    class Config:
-        env_file = ".env"
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
     def __init__(self, **data):
         super().__init__(**data)

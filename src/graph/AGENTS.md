@@ -20,7 +20,7 @@ Owns all Neo4j interactions. Depends on Neo4j database and entity extraction res
 ## Module Index
 
 - neo4j_client.py — Async Neo4j driver with execute/execute_write methods
-- entity_extractor.py — NER: regex-based extraction (EMAIL, PHONE, DATE, URL, MONEY, CONCEPT)
+- entity_extractor.py — NER: regex-based extraction (EMAIL, PHONE, DATE, URL, MONEY, CONCEPT) + concept extraction with noise word filtering
 - graph_sync.py — Sync pipeline: merge nodes, create relationships, co-occurrence
 
 ## Work Guidance

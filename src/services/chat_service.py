@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.conversation import Conversation
 from src.models.message import Message
@@ -85,6 +85,8 @@ class ChatService:
         tenant_id: uuid.UUID,
         user_message: str,
         department_id: uuid.UUID | None = None,
+        user_id: uuid.UUID | None = None,
+        is_tenant_admin: bool = False,
         top_k: int = 5,
     ) -> MessageResponse:
         # Verify conversation belongs to tenant
@@ -101,7 +103,7 @@ class ChatService:
         )
         self.db.add(user_msg)
 
-        # Get RAG response
+        # Get RAG response — respect user department filtering
         from src.schemas.rag import RAGQuery
         rag_service = get_rag_service(self.db)
 
@@ -114,7 +116,8 @@ class ChatService:
                     include_graph_context=True,
                     graph_depth=2,
                 ),
-                is_tenant_admin=True,
+                user_id=user_id,
+                is_tenant_admin=is_tenant_admin,
             )
             assistant_content = rag_result.answer
             sources = []
@@ -162,28 +165,6 @@ class ChatService:
         await self.db.delete(conv)
         await self.db.commit()
         return True
-
-    async def get_stats(self, tenant_id: uuid.UUID) -> dict:
-        """Get conversation and stats data for the tenant."""
-        # Document count
-        from src.models.document import Document
-        doc_result = await self.db.execute(
-            select(func.count(Document.id)).where(Document.tenant_id == tenant_id)
-        )
-        doc_count = doc_result.scalar()
-
-        # Chunk count
-        from src.models.chunk import Chunk
-        chunk_result = await self.db.execute(
-            select(func.count(Chunk.id)).where(Chunk.tenant_id == tenant_id)
-        )
-        chunk_count = chunk_result.scalar()
-
-        return {
-            "document_count": doc_count or 0,
-            "chunk_count": chunk_count or 0,
-        }
-
 
 def get_chat_service(db: AsyncSession) -> ChatService:
     return ChatService(db)

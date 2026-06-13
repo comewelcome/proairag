@@ -22,7 +22,7 @@ class TestTenantCreation:
     async def test_create_tenant_with_admin(self, client):
         """Creer un tenant avec un utilisateur admin."""
         response = await client.post(
-            "/tenants/",
+            "/api/tenants/",
             json={
                 "name": "Test Company",
                 "admin_email": "admin@testcompany.com",
@@ -42,7 +42,7 @@ class TestTenantCreation:
     async def test_create_tenant_without_admin(self, client):
         """Creer un tenant sans utilisateur admin."""
         response = await client.post(
-            "/tenants/",
+            "/api/tenants/",
             json={"name": "Test Company No Admin"},
         )
 
@@ -54,7 +54,7 @@ class TestTenantCreation:
     async def test_create_tenant_empty_name_fails(self, client):
         """Creation d'un tenant avec un nom vide doit echouer."""
         response = await client.post(
-            "/tenants/",
+            "/api/tenants/",
             json={"name": ""},
         )
 
@@ -68,7 +68,7 @@ class TestDepartmentManagement:
     async def test_create_department(self, client, tenant_a):
         """Creer un departement."""
         response = await client.post(
-            "/departments/",
+            "/api/departments/",
             json={"name": "Marketing", "description": "Department marketing"},
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
@@ -84,13 +84,13 @@ class TestDepartmentManagement:
         """Lister les departements d'un tenant."""
         # Create a department first
         await client.post(
-            "/departments/",
+            "/api/departments/",
             json={"name": "Marketing"},
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
 
         response = await client.get(
-            "/departments/",
+            "/api/departments/",
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
 
@@ -103,7 +103,7 @@ class TestDepartmentManagement:
         """Mettre a jour un departement."""
         # Create department
         create_resp = await client.post(
-            "/departments/",
+            "/api/departments/",
             json={"name": "Marketing"},
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
@@ -111,7 +111,7 @@ class TestDepartmentManagement:
 
         # Update department
         response = await client.put(
-            f"/departments/{dept_id}",
+            f"/api/departments/{dept_id}",
             json={"name": "Marketing Updated", "description": "Updated description"},
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
@@ -126,7 +126,7 @@ class TestDepartmentManagement:
         """Supprimer un departement."""
         # Create department
         create_resp = await client.post(
-            "/departments/",
+            "/api/departments/",
             json={"name": "Temp Dept"},
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
@@ -134,7 +134,7 @@ class TestDepartmentManagement:
 
         # Delete department
         response = await client.delete(
-            f"/departments/{dept_id}",
+            f"/api/departments/{dept_id}",
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
 
@@ -142,7 +142,7 @@ class TestDepartmentManagement:
 
         # Verify it's gone
         get_resp = await client.get(
-            f"/departments/{dept_id}",
+            f"/api/departments/{dept_id}",
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
         assert get_resp.status_code == 404
@@ -152,7 +152,7 @@ class TestDepartmentManagement:
         """Impossible d'acceder aux departements d'un autre tenant."""
         # Create department in tenant A (unique name)
         create_resp = await client.post(
-            "/departments/",
+            "/api/departments/",
             json={"name": "Marketing"},
             headers={"X-API-Key": tenant_a["tenant"].api_key},
         )
@@ -160,7 +160,7 @@ class TestDepartmentManagement:
 
         # Try to access with tenant B's API key
         response = await client.get(
-            f"/departments/{dept_id}",
+            f"/api/departments/{dept_id}",
             headers={"X-API-Key": tenant_b.api_key},
         )
 
@@ -174,7 +174,7 @@ class TestUserAuth:
     async def test_register_user(self, client, tenant_a):
         """Enregistrer un nouvel utilisateur dans un tenant."""
         response = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "newuser@company.com",
                 "password": "secure_password_123",
@@ -193,7 +193,7 @@ class TestUserAuth:
         """Enregistrement avec un email deja utilise doit echouer."""
         # Register first user
         await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "newuser@company.com",
                 "password": "secure_password_123",
@@ -203,7 +203,7 @@ class TestUserAuth:
 
         # Try to register again with same email
         response = await client.post(
-            "/auth/register",
+            "/api/auth/register",
             json={
                 "email": "newuser@company.com",
                 "password": "another_password",
@@ -217,7 +217,7 @@ class TestUserAuth:
     async def test_login_success(self, client, tenant_a):
         """Connexion reussie avec les bons credentiels."""
         response = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "hr@company.com",
                 "password": "password123",
@@ -234,7 +234,7 @@ class TestUserAuth:
     async def test_login_wrong_password(self, client, tenant_a):
         """Connexion echoue avec un mauvais mot de passe."""
         response = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "hr@company.com",
                 "password": "wrong_password",
@@ -247,7 +247,7 @@ class TestUserAuth:
     async def test_login_nonexistent_user(self, client):
         """Connexion echoue avec un email inexistant."""
         response = await client.post(
-            "/auth/login",
+            "/api/auth/login",
             json={
                 "email": "nonexistent@example.com",
                 "password": "password",
@@ -260,7 +260,7 @@ class TestUserAuth:
     async def test_jwt_auth_works(self, client, tenant_a, hr_token):
         """Un token JWT valide permet d'acceder aux endpoints."""
         response = await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Test Document",
                 "content": "Test content",
@@ -273,24 +273,22 @@ class TestUserAuth:
     @pytest.mark.asyncio
     async def test_invalid_jwt_fails(self, client):
         """Un token JWT invalide retourne 401."""
-        # httpx ASGI transport raises HTTPException for middleware errors
-        with pytest.raises(Exception) as exc_info:
-            await client.post(
-                "/documents/",
-                json={
-                    "title": "Test Document",
-                    "content": "Test content",
-                },
-                headers={"Authorization": "Bearer invalid_token_here"},
-            )
-        # The exception should be a 401 error
-        assert "401" in str(exc_info.value) or "Invalid" in str(exc_info.value)
+        response = await client.post(
+            "/api/documents/",
+            json={
+                "title": "Test Document",
+                "content": "Test content",
+            },
+            headers={"Authorization": "Bearer invalid_token_here"},
+        )
+        # The response should be a 401 error
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_api_key_auth_still_works(self, client, tenant_a):
         """L'authentification par API key fonctionne toujours."""
         response = await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Test Document",
                 "content": "Test content",
@@ -310,7 +308,7 @@ class TestDocumentDepartmentIsolation:
         dept_hr_id = str(tenant_a["dept_hr"].id)
 
         response = await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "HR Policy",
                 "content": "Human resources policy document",
@@ -328,7 +326,7 @@ class TestDocumentDepartmentIsolation:
     async def test_create_document_without_department(self, client, tenant_a, hr_token):
         """Creer un document sans departement (visible par tous)."""
         response = await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "General Policy",
                 "content": "General company policy",
@@ -347,7 +345,7 @@ class TestDocumentDepartmentIsolation:
         # Create a compta document
         dept_compta_id = str(tenant_a["dept_compta"].id)
         await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Salary Data",
                 "content": "Confidential salary information for all employees",
@@ -359,7 +357,7 @@ class TestDocumentDepartmentIsolation:
         # Try to query RAG as HR user - should not see compta documents
         # This tests the department filter in vector search
         response = await client.post(
-            "/rag/query",
+            "/api/rag/query",
             json={
                 "query": "salary information",
                 "top_k": 5,
@@ -385,7 +383,7 @@ class TestDocumentDepartmentIsolation:
         # Create an HR document
         dept_hr_id = str(tenant_a["dept_hr"].id)
         await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Employee Reviews",
                 "content": "Confidential employee performance reviews",
@@ -396,7 +394,7 @@ class TestDocumentDepartmentIsolation:
 
         # Try to query RAG as compta user - should not see HR documents
         response = await client.post(
-            "/rag/query",
+            "/api/rag/query",
             json={
                 "query": "employee performance reviews",
                 "top_k": 5,
@@ -419,7 +417,7 @@ class TestDocumentDepartmentIsolation:
         """Les documents generaux (sans departement) sont visibles par tous."""
         # Create a general document (no department)
         await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Company Handbook",
                 "content": "General company handbook and policies for all employees",
@@ -430,7 +428,7 @@ class TestDocumentDepartmentIsolation:
         # Both HR and Compta should be able to query and find this document
         for token, user_name in [(hr_token, "HR"), (compta_token, "Compta")]:
             response = await client.post(
-                "/rag/query",
+                "/api/rag/query",
                 json={
                     "query": "company handbook policies",
                     "top_k": 5,
@@ -461,7 +459,7 @@ class TestCrossTenantIsolation:
         """Les documents du tenant B ne sont pas visibles par le tenant A."""
         # Create a document in tenant B
         response = await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Tenant B Secret",
                 "content": "Secret information from tenant B",
@@ -473,7 +471,7 @@ class TestCrossTenantIsolation:
         # Try to query as tenant A - should not see tenant B's documents
         # Using tenant A's API key for admin-level access
         response = await client.post(
-            "/rag/query",
+            "/api/rag/query",
             json={
                 "query": "secret information",
                 "top_k": 5,
@@ -496,7 +494,7 @@ class TestCrossTenantIsolation:
         """Les API keys sont isolees entre tenants."""
         # Create document in tenant A
         await client.post(
-            "/documents/",
+            "/api/documents/",
             json={
                 "title": "Tenant A Doc",
                 "content": "Document from tenant A",
@@ -506,7 +504,7 @@ class TestCrossTenantIsolation:
 
         # Try to list documents with tenant B's API key
         response = await client.get(
-            "/departments/",  # Just check we can authenticate
+            "/api/departments/",  # Just check we can authenticate
             headers={"X-API-Key": tenant_b.api_key},
         )
         assert response.status_code == 200  # Should work, but return different data

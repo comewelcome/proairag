@@ -93,7 +93,7 @@ User Query
 ### Authentication
 - **JWT tokens**: User-level auth with `tenant_id`, `user_id`, `is_tenant_admin` claims
 - **API keys**: Tenant-level access for programmatic integration
-- **Dual auth**: Routes accept either `Authorization: Bearer <JWT>` or `X-API-Key: <key>`
+- **Dual auth**: Routes accept either `Authorization: Bearer *** or `X-API-Key: <key>`
 
 ### Document Management
 - **Supported formats**: PDF (via liteparse), TXT, DOCX, CSV
@@ -105,7 +105,7 @@ User Query
 - **Persistent sessions**: Conversations stored with full message history
 - **Session management**: Create, rename, delete conversations
 - **RAG-powered**: Every assistant message includes retrieved sources and graph context
-- **Department-scoped**: Chat queries respect user department membership
+- **Department-scoped**: Chat queries respect user department membership (non-admin users only see docs in their departments; admins see all) (admin bypass)
 
 ---
 

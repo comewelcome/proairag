@@ -54,24 +54,20 @@ class TestAPIKeyAuth:
 
     @pytest.mark.asyncio
     async def test_missing_api_key_returns_401(self, client):
-        # httpx ASGI transport raises HTTPException for middleware errors
-        with pytest.raises(Exception) as exc_info:
-            await client.post(
-                "/documents/",
-                json={"title": "t", "content": "c"},
-            )
-        assert "401" in str(exc_info.value)
+        response = await client.post(
+            "/api/documents/",
+            json={"title": "t", "content": "c"},
+        )
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_invalid_api_key_returns_403(self, client):
-        # httpx ASGI transport raises HTTPException for middleware errors
-        with pytest.raises(Exception) as exc_info:
-            await client.post(
-                "/documents/",
-                json={"title": "t", "content": "c"},
-                headers={"X-API-Key": "invalid-key"},
-            )
-        assert "403" in str(exc_info.value)
+        response = await client.post(
+            "/api/documents/",
+            json={"title": "t", "content": "c"},
+            headers={"X-API-Key": "invalid-key"},
+        )
+        assert response.status_code == 403
 
     @pytest.mark.asyncio
     async def test_health_without_api_key(self, client):

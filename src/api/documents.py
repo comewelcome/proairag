@@ -82,6 +82,39 @@ async def delete_document(
     return {"status": "deleted"}
 
 
+@router.post("/", response_model=DocumentResponse)
+async def create_document(
+    data: DocumentCreate,
+    db: AsyncSession = Depends(get_db),
+    tenant_id: TenantId = ...,  # type: ignore
+    user_id: UserId = ...,  # type: ignore
+    is_tenant_admin: IsTenantAdmin = ...,  # type: ignore
+):
+    """Ingest a document from JSON payload (tenant-isolated, optional department_id)."""
+    dept_uuid = None
+    if data.department_id:
+        dept_uuid = data.department_id
+
+    # Non-admin can only create docs in their departments
+    if not is_tenant_admin and user_id:
+        from src.services.department_service import get_department_service
+        dept_service = get_department_service(db)
+        user_dept_ids = await dept_service.get_user_department_ids(user_id)
+        if dept_uuid and dept_uuid not in user_dept_ids:
+            raise HTTPException(status_code=403, detail="Access denied: cannot create document in this department")
+
+    service = get_ingestion_service(db)
+    document = await service.ingest_document(
+        tenant_id=tenant_id,
+        title=data.title,
+        content=data.content,
+        source=data.source,
+        content_type=data.content_type,
+        department_id=dept_uuid,
+    )
+    return document
+
+
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document_file(
     file: UploadFile = File(...),

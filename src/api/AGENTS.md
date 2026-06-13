@@ -41,7 +41,7 @@ All API routes are prefixed with `/api/` for the dashboard frontend integration.
 - POST /api/chat/sessions/ — Create new chat session
 - GET /api/chat/sessions/ — List chat sessions for tenant
 - GET /api/chat/sessions/{session_id} — Get session messages
-- POST /api/chat/sessions/{session_id}/send — Send message, get RAG response
+- POST /api/chat/sessions/{session_id}/send — Send message, get RAG response (user_id + is_tenant_admin scoped)
 - PUT /api/chat/sessions/{session_id}/title — Rename session
 - DELETE /api/chat/sessions/{session_id} — Delete session
 - GET /api/settings/ — Get tenant RAG settings

@@ -2,7 +2,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.session import get_db
-from src.middleware.tenant import TenantId
+from src.middleware.tenant import TenantId, UserId, IsTenantAdmin
 from src.services.chat_service import get_chat_service
 from src.schemas.chat import (
     ConversationCreate,
@@ -72,6 +72,8 @@ async def send_message(
     data: MessageCreate,
     db: AsyncSession = Depends(get_db),
     tenant_id: TenantId = ...,  # type: ignore
+    user_id: UserId = ...,  # type: ignore
+    is_tenant_admin: IsTenantAdmin = ...,  # type: ignore
 ):
     try:
         conv_uuid = uuid.UUID(session_id)
@@ -89,6 +91,8 @@ async def send_message(
         tenant_id=tenant_id,
         user_message=data.message,
         department_id=dept_uuid,
+        user_id=user_id,
+        is_tenant_admin=is_tenant_admin,
     )
 
 

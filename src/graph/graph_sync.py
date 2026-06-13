@@ -23,7 +23,7 @@ class GraphSyncService:
             """
             MERGE (t:Tenant {id: $tenant_id})
             MERGE (d:Document {id: $doc_id})
-            CREATE (t)-[:OWNS]->(d)
+            MERGE (t)-[:OWNS]->(d)
             """,
             {"tenant_id": str(tenant_id), "doc_id": str(doc_id)},
         )
@@ -60,7 +60,7 @@ class GraphSyncService:
                 SET c.tenant_id = $tenant_id,
                     c.content = $content,
                     c.chunk_index = $chunk_index
-                CREATE (d)-[:HAS_CHUNK]->(c)
+                MERGE (d)-[:HAS_CHUNK]->(c)
                 """,
                 {
                     "tenant_id": str(tenant_id),

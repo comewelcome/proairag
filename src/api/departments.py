@@ -84,7 +84,8 @@ async def assign_user_to_department(
     db: AsyncSession = Depends(get_db),
 ):
     # Only tenant admins can assign users to departments
-    if not user_id or not is_tenant_admin:
+    # API key auth (user_id=None) has tenant-level admin access
+    if user_id and not is_tenant_admin:
         raise HTTPException(status_code=403, detail="Tenant admin required")
 
     service = get_department_service(db)

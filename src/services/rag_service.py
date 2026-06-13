@@ -128,17 +128,94 @@ class RAGService:
     async def _generate_answer(self, query: str, context: str) -> str:
         from src.services.llm_service import get_llm_provider
 
-        system_prompt = """You are a research assistant. Answer questions based
-        on the provided context. Cite sources when possible. If the context
-        does not contain enough information, clearly state what is missing."""
+        system_prompt = (
+            "You are a research assistant. Answer questions based on the provided context. "
+            "Provide a direct, clear, and concise answer. "
+            "IMPORTANT: DO NOT show your reasoning, thinking process, or analysis steps. "
+            "DO NOT use numbered lists like '1. Analyze the Request' or '2. Scan Context'. "
+            "DO NOT use bold headers like **Analyze the Request:** or **Scan Context for...**. "
+            "DO NOT structure your response as a reasoning chain. "
+            "DO NOT include any meta-commentary about how you are thinking. "
+            "Just provide the final answer directly. Cite sources when possible. "
+            "If the context does not contain enough information, clearly state what is missing."
+        )
 
         prompt = f"Context:\n\n{context}\n\nQuestion: {query}\n\nAnswer:"
         llm = get_llm_provider()
         try:
-            return await llm.generate(prompt, system_prompt=system_prompt)
+            raw_answer = await llm.generate(prompt, system_prompt=system_prompt)
+            # Strip thinking/reasoning tags that some models output
+            return self._clean_thinking_tags(raw_answer)
         except Exception:
             return f"[LLM unavailable] Based on the context provided, here is the answer to: {query}"
 
+    @staticmethod
+    def _clean_thinking_tags(text: str) -> str:
+        """Remove thinking/reasoning tags and extract the final answer from LLM output.
+
+        Handles structured reasoning blocks like:
+        1. **Analyze the Request:** ...
+        2. **Scan Context:** ...
+        3. **Final Answer:** ...
+
+        Extracts the content from the "Final Answer" or "Answer" block,
+        or falls back to the last block if no explicit answer block exists.
+        """
+        import re
+
+        # Remove <think>...</think> and <thinking>...</thinking> tags
+        text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL | re.IGNORECASE)
+        text = re.sub(r"<thinking>.*?</thinking>", "", text, flags=re.DOTALL | re.IGNORECASE)
+
+        # Check if text has structured reasoning blocks
+        header_pattern = re.compile(r"^(\d+)\.\s+\*\*(.+):\*\*")
+        lines = text.split("\n")
+
+        blocks = []
+        current_header = None
+        current_content = []
+
+        for line in lines:
+            header_match = header_pattern.match(line)
+            if header_match:
+                if current_header is not None:
+                    blocks.append((current_header, "\n".join(current_content)))
+                current_header = (header_match.group(1), header_match.group(2))
+                current_content = []
+            elif current_header is not None:
+                current_content.append(line)
+
+        if current_header is not None:
+            blocks.append((current_header, "\n".join(current_content)))
+
+        if not blocks:
+            # No structured blocks found, return cleaned text as-is
+            cleaned = re.sub(r"\n{3,}", "\n\n", text).strip()
+            return cleaned or "I don't have enough context to answer this question."
+
+        # Extract answer with priority:
+        # 1. Look for "Final Answer" block
+        # 2. Look for "Answer" block
+        # 3. Use the last block
+        answer = None
+        for _num, (header, content) in enumerate(blocks):
+            header_lower = header[1].lower().strip()
+            if header_lower == "final answer":
+                answer = content.strip()
+                break
+
+        if answer is None:
+            for _num, (header, content) in enumerate(blocks):
+                header_lower = header[1].lower().strip()
+                if header_lower == "answer" or header_lower.startswith("answer:"):
+                    answer = content.strip()
+                    break
+
+        if answer is None:
+            answer = blocks[-1][1].strip()
+
+        answer = re.sub(r"\n{3,}", "\n\n", answer).strip()
+        return answer or "I don't have enough context to answer this question."
 
 def get_rag_service(db: AsyncSession) -> RAGService:
     return RAGService(db)

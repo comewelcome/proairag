@@ -66,15 +66,6 @@ async def _get_session() -> AsyncSession:
     return _async_session()
 
 
-async def _execute_with_session(coro_func):
-    """Run an async function that takes a session, handling lifecycle."""
-    session = _async_session()
-    try:
-        return await coro_func(session)
-    finally:
-        await session.close()
-
-
 # ---------------------------------------------------------------------------
 # Neo4j client (lightweight — no singleton import from project)
 # ---------------------------------------------------------------------------
@@ -666,37 +657,11 @@ async def list_departments(
 # ---------------------------------------------------------------------------
 
 def _extract_entities(text: str) -> list[str]:
-    """Simple entity extraction from text using regex patterns."""
-    import re
-    entities: list[str] = []
-
-    # Email
-    for m in re.finditer(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text):
-        entities.append(m.group())
-
-    # Phone
-    for m in re.finditer(r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b', text):
-        entities.append(m.group())
-
-    # Dates
-    for m in re.finditer(r'\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+\d{4}\b', text, re.IGNORECASE):
-        entities.append(m.group())
-
-    # URLs
-    for m in re.finditer(r'https?://\S+', text):
-        entities.append(m.group())
-
-    # Money
-    for m in re.finditer(r'\$[\d,]+(?:\.\d{2})?', text):
-        entities.append(m.group())
-
-    # Capitalized words/phrases (potential concepts)
-    for m in re.finditer(r'\b[A-Z][a-z]{2,}(?:\s+[A-Z][a-z]+)*\b', text):
-        phrase = m.group()
-        if len(phrase) > 3:
-            entities.append(phrase)
-
-    return list(set(entities))
+    """Entity extraction using the shared EntityExtractor."""
+    from src.graph.entity_extractor import get_entity_extractor
+    extractor = get_entity_extractor()
+    entities = extractor.extract(text)
+    return [e.name for e in entities if e.confidence > 0.5]
 
 
 async def _get_entity_context(
