@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Send, FileText, GitBranch, Bot, User, MessageSquare } from 'lucide-react';
+import { Plus, Send, FileText, GitBranch, Bot, User, Trash2, BrainCircuit } from 'lucide-react';
 import { api } from '../lib/api';
-import { EmptyState } from '../components/common/EmptyState';
 import { toast } from 'sonner';
 import type { Conversation, ChatMessage } from '../types';
 
@@ -12,6 +11,7 @@ export function Chat() {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const loadSessions = async () => {
@@ -53,6 +53,21 @@ export function Chat() {
     }
   };
 
+  const deleteSession = async (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.delete(`/chat/sessions/${sessionId}`);
+      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      if (currentSession?.id === sessionId) {
+        setCurrentSession(null);
+        setMessages([]);
+      }
+      toast.success('Conversation supprimee');
+    } catch {
+      toast.error('Impossible de supprimer la conversation');
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || sending) return;
     if (!currentSession) {
@@ -71,13 +86,16 @@ export function Chat() {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setSending(true);
+    setThinking(true);
 
     try {
       const { data } = await api.post<ChatMessage>(`/chat/sessions/${currentSession.id}/send`, {
         message: userMsg.content,
       });
+      setThinking(false);
       setMessages(prev => [...prev, data]);
     } catch {
+      setThinking(false);
       toast.error('Erreur lors de lenvoi du message');
       setMessages(prev => prev.filter(m => m.id !== userMsg.id));
     } finally {
@@ -104,20 +122,31 @@ export function Chat() {
         </div>
         <div className="flex-1 overflow-auto p-2 space-y-1">
           {sessions.map(session => (
-            <button
+            <div
               key={session.id}
-              onClick={() => loadSession(session)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                currentSession?.id === session.id
-                  ? 'bg-accent/10 text-accent'
-                  : 'text-text-muted hover:bg-bg-card hover:text-text'
-              }`}
+              className="group flex items-center"
             >
-              <div className="truncate">{session.title}</div>
-              <div className="text-xs text-text-muted/50 mt-0.5">
-                {new Date(session.updated_at).toLocaleDateString('fr-FR')}
-              </div>
-            </button>
+              <button
+                onClick={() => loadSession(session)}
+                className={`flex-1 text-left px-3 py-2 rounded-lg text-sm transition-all ${
+                  currentSession?.id === session.id
+                    ? 'bg-accent/10 text-accent'
+                    : 'text-text-muted hover:bg-bg-card hover:text-text'
+                }`}
+              >
+                <div className="truncate">{session.title}</div>
+                <div className="text-xs text-text-muted/50 mt-0.5">
+                  {new Date(session.updated_at).toLocaleDateString('fr-FR')}
+                </div>
+              </button>
+              <button
+                onClick={(e) => deleteSession(session.id, e)}
+                className="p-1.5 rounded text-text-muted/30 hover:text-red-400 hover:bg-red-400/10 opacity-0 group-hover:opacity-100 transition-all"
+                title="Supprimer la conversation"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           ))}
           {sessions.length === 0 && (
             <div className="text-text-muted/50 text-sm text-center py-8">
@@ -132,13 +161,8 @@ export function Chat() {
         {loading ? (
           <div className="flex-1 flex items-center justify-center text-text-muted">Chargement...</div>
         ) : messages.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
-            <EmptyState
-              icon={<MessageSquare size={48} />}
-              title="Bienvenue dans le Chat RAG"
-              description="Posez des questions sur vos documents. Les responses sont basees sur le contenu de vos fichiers et le graphe de connaissances."
-              action={<button onClick={createSession} className="btn-primary">+ Commencer une conversation</button>}
-            />
+          <div className="flex-1 flex items-center justify-center text-text-muted text-sm">
+            Selectionnez ou creer une conversation pour commencer
           </div>
         ) : (
           <div className="flex-1 overflow-auto p-6 space-y-4">
@@ -185,6 +209,29 @@ export function Chat() {
                 </div>
               </div>
             ))}
+            {/* Thinking bubble */}
+            {thinking && (
+              <div className="flex gap-3 justify-start">
+                <div className="flex gap-2 max-w-[80%]">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-bg-card">
+                    <Bot size={16} className="text-accent" />
+                  </div>
+                  <div>
+                    <div className="rounded-xl px-4 py-3 bg-bg-card/50 border border-border/50">
+                      <div className="flex items-center gap-3">
+                        <BrainCircuit size={16} className="text-accent/60 animate-pulse" />
+                        <span className="text-sm text-text-muted">Reflection en cours...</span>
+                        <div className="flex gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce [animation-delay:0ms]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce [animation-delay:150ms]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent/60 animate-bounce [animation-delay:300ms]" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         )}

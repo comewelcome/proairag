@@ -1,10 +1,9 @@
 import { useAuth } from '../hooks/useAuth';
 import { FolderOpen, FileText, MessageSquare } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 
 export function Dashboard() {
   const { tenant } = useAuth();
-  const navigate = useNavigate();
 
   const quickActions = [
     { label: 'Services', icon: FolderOpen, path: '/services', desc: 'Gerer les departements' },
@@ -42,10 +41,10 @@ export function Dashboard() {
       <h3 className="text-lg font-semibold text-text mb-4">Actions rapides</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {quickActions.map(({ label, icon: Icon, path, desc }) => (
-          <button
+          <Link
             key={label}
-            onClick={() => navigate({ to: path })}
-            className="card hover:border-accent/50 transition-all group text-left"
+            to={path}
+            className="card hover:border-accent/50 transition-all group text-left block no-underline"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -56,7 +55,7 @@ export function Dashboard() {
               </div>
               <Icon className="text-text-muted group-hover:text-accent transition-colors" size={24} />
             </div>
-          </button>
+          </Link>
         ))}
       </div>
     </div>
