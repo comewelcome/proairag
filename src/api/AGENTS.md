@@ -2,7 +2,7 @@
 
 ## Purpose
 
-FastAPI route definitions for the ProAiRag REST API. Exposes tenant management, document ingestion, RAG queries, chat sessions, and settings endpoints. All routes are prefixed with /api/ for dashboard integration.
+FastAPI route definitions for the ProAiRag REST API. Exposes tenant management, document ingestion, RAG queries, chat sessions, settings, and super admin endpoints. All routes are prefixed with /api/ for dashboard integration.
 
 ## Ownership
 
@@ -47,6 +47,13 @@ All API routes are prefixed with `/api/` for the dashboard frontend integration.
 - GET /api/settings/ — Get tenant RAG settings
 - PUT /api/settings/ — Update tenant RAG settings
 - GET /api/settings/stats — Get system stats (docs, chunks, entities, DB connectivity)
+- GET /api/admin/tenants/ — List all tenants (super admin only)
+- DELETE /api/admin/tenants/{tenant_id} — Deactivate tenant (super admin only)
+- GET /api/admin/tenants/{tenant_id}/users/ — List users in tenant (super admin)
+- POST /api/admin/tenants/{tenant_id}/users/ — Create user in tenant (super admin)
+- PUT /api/admin/tenants/{tenant_id}/users/{user_id} — Update user (super admin)
+- DELETE /api/admin/tenants/{tenant_id}/users/{user_id} — Delete user (super admin)
+- GET /api/admin/tenants/{tenant_id}/documents/ — List tenant documents (super admin)
 - GET /health — Health check (no auth required)
 
 ## Work Guidance

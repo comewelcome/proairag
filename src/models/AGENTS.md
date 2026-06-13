@@ -23,7 +23,7 @@ Owns all database table definitions. Depends on src/db/session.py for the Base c
 - document.py — Document: tenant_id, department_id, title, content, source, content_type, is_processed
 - chunk.py — Chunk: tenant_id, document_id, content, embedding (vector), chunk_index
 - department.py — Department: tenant_id, name, description, created_at
-- user.py — User: tenant_id, email, password_hash, full_name, is_tenant_admin, is_active
+- user.py — User: tenant_id, email, password_hash, full_name, is_tenant_admin, is_super_admin, is_active
 - user_department.py — UserDepartment: user_id, department_id, role (junction table)
 - conversation.py — Conversation: tenant_id, department_id, title, created_at, updated_at (+ messages relationship)
 - message.py — Message: conversation_id, role (user/assistant), content, sources (JSON), graph_context (JSON)

@@ -21,7 +21,7 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - Neo4j queries always include WHERE tenant_id for isolation
 - LLM defaults to OpenAI-compatible API on host.docker.internal:1234 (llama.cpp Qwen3.6-27B-UD-Q4_K_XL.gguf), configurable via LLM_PROVIDER env var, max 500 tokens, 300s timeout. Docker Compose sets extra_hosts for host.docker.internal resolution.
 - FastAPI serves the React SPA frontend (frontend/dist/) with catchall routing
-- TenantContextMiddleware excludes frontend routes (/assets/, /, /login, /services, /documents, /chat, /settings) from auth
+- TenantContextMiddleware excludes frontend routes (/assets/, /, /login, /services, /documents, /chat, /settings, /admin/tenants, /admin/users, /admin/documents) from auth
 - **Security: `src/config.py` Settings raises `ValueError` if required secrets (database_url, neo4j_*, secret_key) are missing — never use default passwords**
 - **Security: `src/mcp_server.py` raises `RuntimeError` at import time if DATABASE_URL or NEO4J_* env vars are unset**
 
@@ -31,7 +31,7 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 - Services receive dependencies via factory functions (e.g., get_rag_service)
 - Use dependency injection via FastAPI Depends for db sessions, tenant context, and user context
 - Graph sync runs synchronously after document ingestion
-- JWT tokens contain user_id, tenant_id, and is_tenant_admin claims
+- JWT tokens contain user_id, tenant_id, is_tenant_admin, and is_super_admin claims
 
 ## Verification
 
@@ -43,7 +43,7 @@ Owns all Python source: FastAPI app, middleware, data models, schemas, services,
 
 ## Child DOX Index
 
-- `src/api/AGENTS.md` — REST API routes: auth, tenants, departments, documents, rag, chat, settings
+- `src/api/AGENTS.md` — REST API routes: auth, tenants, departments, documents, rag, chat, settings, admin (super admin)
 - `src/services/AGENTS.md` — Business logic: auth, department, embedding, ingestion, RAG, vector, graph, llm, chat, settings
 - `src/models/AGENTS.md` — SQLAlchemy ORM models: Tenant, Document, Chunk, Department, User, UserDepartment, Conversation, Message, TenantSettings
 - `src/graph/AGENTS.md` — Neo4j integration: client, entity extraction, graph sync (with Department nodes)

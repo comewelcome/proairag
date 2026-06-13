@@ -19,8 +19,7 @@ Owns the database connection, session lifecycle, and declarative base. All model
 ## Module Index
 
 - session.py — Base, engine, async_session, get_db() dependency
-- rls_policies.py — (future) RLS policy management via SQLAlchemy
-- seed.py — (future) Database seeding utilities
+- seed.py — Auto-seed super admin and dashboard tenants on startup (idempotent)
 
 ## Work Guidance
 

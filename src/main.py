@@ -69,7 +69,7 @@ def create_app() -> FastAPI:
         return HTMLResponse("<h1>Frontend not built. Run: cd frontend && npm run build</h1>", status_code=503)
 
     # SPA routes - each one serves index.html
-    for path in ["/", "/login", "/services", "/documents", "/chat", "/settings"]:
+    for path in ["/", "/login", "/services", "/documents", "/chat", "/settings", "/admin/tenants", "/admin/users", "/admin/documents"]:
         app.get(path)(_serve_index)
 
     return app

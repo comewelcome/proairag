@@ -20,7 +20,7 @@ Owns all request/response models. Used by API routes for input validation and re
 - tenant.py — TenantCreate, TenantResponse, TenantUpdate (+ admin_email, admin_password, admin_full_name)
 - document.py — DocumentCreate, DocumentResponse (+ department_id)
 - rag.py — RAGQuery, RAGResponse, RAGSource
-- auth.py — UserCreate, UserResponse, LoginRequest, TokenResponse
+- auth.py — UserCreate, UserResponse (+ is_super_admin), LoginRequest, TokenResponse
 - department.py — DepartmentCreate, DepartmentResponse, DepartmentUpdate, UserDepartmentAssignment, UserDepartmentResponse
 - chat.py — ConversationCreate, ConversationResponse, MessageCreate, MessageResponse
 - settings.py — RagSettingsUpdate, RagSettingsResponse, SystemStats

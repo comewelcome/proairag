@@ -28,6 +28,7 @@ SQL:
 - 007_create_conversations.sql — Conversations + Messages tables for chat history (tenant-isolated)
 - 008_create_tenant_settings.sql — Per-tenant RAG configuration (chunk_size, top_k, LLM provider, etc.)
 - 009_add_llm_max_tokens.sql — Add llm_max_tokens column (default: 500) for LLM generation
+- 010_add_super_admin.sql — Add is_super_admin boolean column to users table
 
 Cypher:
 - 001_constraints.cypher — Unique constraints for Tenant, Document, Chunk, Entity

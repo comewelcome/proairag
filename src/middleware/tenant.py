@@ -30,7 +30,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         ]
         # Frontend static files and SPA routes bypass auth middleware
         frontend_paths = ["/assets/", "/index.html", "/favicon.ico", "/vite.svg"]
-        spa_routes = ["/", "/login", "/services", "/documents", "/chat", "/settings"]
+        spa_routes = ["/", "/login", "/services", "/documents", "/chat", "/settings", "/admin/tenants", "/admin/users", "/admin/documents"]
 
         if request.url.path in public_paths or (request.method, request.url.path) in public_endpoints:
             return await call_next(request)

@@ -25,7 +25,8 @@ Owns all test code: fixtures, unit tests, integration tests. Depends on src/ for
 ```
 tests/
 ├── conftest.py              # Root conftest: markers, auto-marking by path
-├── unit/                    # Unit tests (mocks, no DB)
+├── test_mcp_server.py         # MCP server mock data setup + verification (root-level test script)
+├── unit/                      # Unit tests (mocks, no DB)
 │   ├── test_auth_service.py      # Password hashing, JWT, auth flow
 │   ├── test_department_service.py # Department CRUD, user assignment
 │   ├── test_entity_extractor.py   # NER extraction (regex)
@@ -33,16 +34,15 @@ tests/
 │   └── test_vector_service.py     # Embedding helpers
 ├── integration/             # Integration tests (real Docker DB)
 │   ├── conftest.py              # Real DB fixtures (tenant, users, departments)
-│   ├── test_mcp_server.py       # MCP server mock data setup + verification
 │   ├── test_full_api_flow.py    # End-to-end API tests (23 tests)
 │   ├── test_auth.py             # Auth endpoints (8 tests)
 │   ├── test_tenant_isolation.py # Tenant isolation (5 tests)
 │   └── test_department_isolation.py # Department isolation (3 tests)
 ```
 
-### Dashboard integration test (root level)
-- ../test_dashboard.py — Full-stack integration test for dashboard API endpoints (15 tests, 15/15 OK)
-  - Tests: Health, SPA login page, tenant CRUD, auth, departments, document upload/list, RAG query, chat sessions, settings get/update, system stats
+### Root-level integration tests
+- ../test_dashboard.py — Full-stack integration test for dashboard API endpoints
+- ../tests/test_mcp_server.py — MCP server mock data setup + verification (2 tenants, 7 docs)
 
 ## Test Index
 

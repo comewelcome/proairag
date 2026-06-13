@@ -29,6 +29,9 @@ Owns the entire frontend application: pages, components, routing, state manageme
 | Documents | /documents | File upload (drag & drop), list with filters |
 | Chat | /chat | ChatGPT-style interface with sessions and sources |
 | Settings | /settings | RAG configuration (chunk size, LLM provider, etc.) |
+| Admin Tenants | /admin/tenants | Super admin: list all tenants, deactivate |
+| Admin Users | /admin/users | Super admin: manage users across tenants |
+| Admin Documents | /admin/documents | Super admin: view documents per tenant |
 
 ## Architecture
 
@@ -36,7 +39,7 @@ Owns the entire frontend application: pages, components, routing, state manageme
 frontend/
 ├── src/
 │   ├── main.tsx                 # Entry point + AuthProvider
-│   ├── router.tsx               # TanStack Router config (6 routes)
+│   ├── router.tsx               # TanStack Router config (9 routes: 6 app + 3 admin)
 │   ├── index.css                # TailwindCSS + custom theme
 │   ├── types/index.ts           # TypeScript interfaces (User, Tenant, Document, etc.)
 │   ├── lib/api.ts               # Axios client with JWT interceptor
@@ -58,7 +61,10 @@ frontend/
 │       ├── Services.tsx         # Department CRUD
 │       ├── Documents.tsx        # File upload + document list
 │       ├── Chat.tsx             # Chat interface with sessions
-│       └── Settings.tsx         # RAG settings form
+│       ├── Settings.tsx         # RAG settings form
+│       ├── AdminTenants.tsx     # Super admin: tenant list + deactivate
+│       ├── AdminUsers.tsx       # Super admin: user CRUD across tenants
+│       └── AdminDocuments.tsx   # Super admin: cross-tenant document view
 ├── vite.config.ts               # Vite config with Tailwind + API proxy
 ├── tsconfig.json                # TypeScript config (strict mode)
 └── dist/                        # Build output (served by FastAPI)
