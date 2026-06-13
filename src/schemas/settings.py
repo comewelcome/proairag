@@ -2,19 +2,17 @@ from pydantic import BaseModel, Field
 
 
 class RagSettingsUpdate(BaseModel):
-    chunk_size: int = Field(512, ge=64, le=2048)
-    chunk_overlap: int = Field(64, ge=0, le=512)
-    top_k: int = Field(5, ge=1, le=50)
-    embedding_model: str = Field(
-        default="sentence-transformers/paraphrase-MiniLM-L3-v2"
-    )
-    llm_provider: str = Field(default="openai")
+    chunk_size: int | None = Field(default=None, ge=64, le=2048)
+    chunk_overlap: int | None = Field(default=None, ge=0, le=512)
+    top_k: int | None = Field(default=None, ge=1, le=50)
+    embedding_model: str | None = None
+    llm_provider: str | None = None
     llm_model: str | None = None
     openai_api_key: str | None = None
     openai_api_base: str | None = None
     ollama_base_url: str | None = None
     ollama_model: str | None = None
-    llm_max_tokens: int = 500
+    llm_max_tokens: int | None = None
 
 
 class RagSettingsResponse(BaseModel):

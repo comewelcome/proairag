@@ -46,9 +46,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             user_context = await self._resolve_jwt(token)
             if user_context:
                 request.state.tenant_id = user_context["tenant_id"]
-                request.state.tenant = user_context["tenant"]
                 request.state.user_id = user_context["user_id"]
-                request.state.user = user_context["user"]
                 request.state.is_tenant_admin = user_context["is_tenant_admin"]
                 request.state.is_super_admin = user_context["is_super_admin"]
                 request.state.auth_mode = "jwt"
@@ -74,8 +72,10 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             return _auth_error(403, "Invalid or inactive API key")
 
         request.state.tenant_id = tenant.id
-        request.state.tenant = tenant
         request.state.auth_mode = "api_key"
+        # API key holders have tenant-level admin access (bypass department filters)
+        request.state.is_tenant_admin = True
+        request.state.is_super_admin = False
 
         response = await call_next(request)
         return response
@@ -109,11 +109,10 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             if not tenant:
                 return None
 
+        # Return only primitives — no detached ORM objects
         return {
             "user_id": user.id,
-            "user": user,
             "tenant_id": tenant.id,
-            "tenant": tenant,
             "is_tenant_admin": payload.get("is_tenant_admin", False),
             "is_super_admin": payload.get("is_super_admin", False),
         }
@@ -131,17 +130,12 @@ def get_tenant_id(request: Request) -> uuid.UUID:
 def get_tenant(request: Request) -> Tenant | None:
     if hasattr(request.state, "is_super_admin") and request.state.is_super_admin:
         return None  # Super admin bypasses tenant checks
-    if not hasattr(request.state, "tenant"):
-        raise HTTPException(status_code=400, detail="Tenant context missing")
-    return request.state.tenant
+    # Tenant ORM object not stored — use get_tenant_id() instead and fetch from your own session
+    raise HTTPException(status_code=400, detail="Use get_tenant_id() and fetch Tenant from your DB session")
 
 
 def get_user_id(request: Request) -> uuid.UUID | None:
     return getattr(request.state, "user_id", None)
-
-
-def get_user(request: Request) -> User | None:
-    return getattr(request.state, "user", None)
 
 
 def get_is_tenant_admin(request: Request) -> bool:
@@ -157,9 +151,7 @@ def get_auth_mode(request: Request) -> str:
 
 
 TenantId = Annotated[uuid.UUID, Depends(get_tenant_id)]
-TenantDep = Annotated[Tenant, Depends(get_tenant)]
 UserId = Annotated[uuid.UUID | None, Depends(get_user_id)]
-UserDep = Annotated[User | None, Depends(get_user)]
 IsTenantAdmin = Annotated[bool, Depends(get_is_tenant_admin)]
 IsSuperAdmin = Annotated[bool, Depends(get_is_super_admin)]
 AuthMode = Annotated[str, Depends(get_auth_mode)]

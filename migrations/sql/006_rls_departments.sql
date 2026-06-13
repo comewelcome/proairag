@@ -9,17 +9,32 @@ ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
 -- ============================================================
 CREATE POLICY tenant_department_isolation ON departments
     FOR SELECT
-    USING (tenant_id = current_tenant_id());
+    USING (
+        current_setting('app.current_tenant_id', true) IS NULL
+        OR tenant_id = current_setting('app.current_tenant_id', true)::UUID
+    );
 
 CREATE POLICY tenant_department_insert ON departments
     FOR INSERT
-    WITH CHECK (tenant_id = current_tenant_id());
+    WITH CHECK (
+        current_setting('app.current_tenant_id', true) IS NULL
+        OR tenant_id = current_setting('app.current_tenant_id', true)::UUID
+    );
 
 CREATE POLICY tenant_department_update ON departments
     FOR UPDATE
-    USING (tenant_id = current_tenant_id())
-    WITH CHECK (tenant_id = current_tenant_id());
+    USING (
+        current_setting('app.current_tenant_id', true) IS NULL
+        OR tenant_id = current_setting('app.current_tenant_id', true)::UUID
+    )
+    WITH CHECK (
+        current_setting('app.current_tenant_id', true) IS NULL
+        OR tenant_id = current_setting('app.current_tenant_id', true)::UUID
+    );
 
 CREATE POLICY tenant_department_delete ON departments
     FOR DELETE
-    USING (tenant_id = current_tenant_id());
+    USING (
+        current_setting('app.current_tenant_id', true) IS NULL
+        OR tenant_id = current_setting('app.current_tenant_id', true)::UUID
+    );

@@ -155,7 +155,9 @@ async def hr_token(client, tenant_a):
 
     user = tenant_a["user_hr"]
     return AuthService.create_access_token(
-        user.id, user.tenant_id, user.is_tenant_admin
+        user.id, user.tenant_id,
+        is_tenant_admin=user.is_tenant_admin,
+        is_super_admin=getattr(user, "is_super_admin", False),
     )
 
 
@@ -166,5 +168,7 @@ async def compta_token(client, tenant_a):
 
     user = tenant_a["user_compta"]
     return AuthService.create_access_token(
-        user.id, user.tenant_id, user.is_tenant_admin
+        user.id, user.tenant_id,
+        is_tenant_admin=user.is_tenant_admin,
+        is_super_admin=getattr(user, "is_super_admin", False),
     )

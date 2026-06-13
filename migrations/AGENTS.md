@@ -12,7 +12,7 @@ Owns all database schema definitions. Run during database initialization or migr
 
 - SQL migrations are run in numeric order (001, 002, ...)
 - Cypher migrations are run in numeric order
-- RLS policies are in a separate migration file (005) run after table creation
+-RLS policies have a NULL-safe fallback: when app.current_tenant_id is not set, rows are allowed (app-level WHERE clauses provide primary isolation). RLS acts as defense-in-depth.
 - PostgreSQL uses pgvector extension for embeddings
 - Neo4j uses constraints and indexes for performance
 

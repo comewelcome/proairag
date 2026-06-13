@@ -32,10 +32,13 @@ async def list_documents(
         dept_service = get_department_service(db)
         user_dept_ids = await dept_service.get_user_department_ids(user_id) if user_id else []
         if user_dept_ids:
-            query = query.where(Document.department_id.in_(user_dept_ids))
+            # User with departments: show docs in their depts + docs without department
+            query = query.where(
+                (Document.department_id.in_(user_dept_ids)) | (Document.department_id.is_(None))
+            )
         else:
-            # User has no departments — return nothing
-            return []
+            # User with no departments — only show docs without department
+            query = query.where(Document.department_id.is_(None))
 
     # Additional filter if explicit department_id provided
     if department_id:
@@ -73,7 +76,11 @@ async def delete_document(
         from src.services.department_service import get_department_service
         dept_service = get_department_service(db)
         user_dept_ids = await dept_service.get_user_department_ids(user_id)
-        if doc.department_id not in user_dept_ids:
+        # Documents without department are accessible to all tenant members
+        if doc.department_id is not None and doc.department_id not in user_dept_ids:
+            raise HTTPException(status_code=403, detail="Access denied: document not in your department")
+        # User with no departments can only access docs without department
+        if not user_dept_ids and doc.department_id is not None:
             raise HTTPException(status_code=403, detail="Access denied: document not in your department")
 
     await db.execute(sa_delete(Chunk).where(Chunk.document_id == doc_uuid))
@@ -183,8 +190,9 @@ def _parse_file_content(data: bytes, content_type: str, filename: str | None) ->
     # Try python-docx for DOCX
     if "word" in ct or "docx" in ct or fn.endswith(".docx"):
         try:
+            import io
             from docx import Document as DocxDocument
-            doc = DocxDocument.load(data)
+            doc = DocxDocument.load(io.BytesIO(data))
             text = "\n".join(p.text for p in doc.paragraphs)
             return text or "(empty document)"
         except ImportError:

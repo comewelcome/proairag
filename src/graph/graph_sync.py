@@ -102,23 +102,30 @@ class GraphSyncService:
         self, tenant_id: uuid.UUID, entities: dict[str, Entity]
     ):
         entity_list = list(entities.values())
+        # Build all cross-type pairs in a single batch query
+        pairs = []
         for i, e1 in enumerate(entity_list):
             for e2 in entity_list[i + 1 :]:
                 if e1.type != e2.type:
-                    await self.neo4j.execute(
-                        """
-                        MATCH (a:Entity {id: $id1, tenant_id: $tenant_id}),
-                              (b:Entity {id: $id2, tenant_id: $tenant_id})
-                        MERGE (a)-[r:CO_OCCURS_WITH {type: $rel_type}]->(b)
-                        ON CREATE SET r.confidence = 0.5
-                        """,
-                        {
-                            "tenant_id": str(tenant_id),
-                            "id1": e1.id,
-                            "id2": e2.id,
-                            "rel_type": f"{e1.type}_TO_{e2.type}",
-                        },
-                    )
+                    pairs.append((e1.id, e2.id, f"{e1.type}_TO_{e2.type}"))
+
+        if not pairs:
+            return
+
+        # Single Cypher call with UNWIND for all co-occurrence relations
+        await self.neo4j.execute(
+            """
+            UNWIND $pairs AS pair
+            MATCH (a:Entity {id: pair.id1, tenant_id: $tenant_id}),
+                  (b:Entity {id: pair.id2, tenant_id: $tenant_id})
+            MERGE (a)-[r:CO_OCCURS_WITH {type: pair.rel_type}]->(b)
+            ON CREATE SET r.confidence = 0.5
+            """,
+            {
+                "tenant_id": str(tenant_id),
+                "pairs": pairs,
+            },
+        )
 
 
 def get_graph_sync_service() -> GraphSyncService:

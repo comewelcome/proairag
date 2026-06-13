@@ -16,14 +16,14 @@ Owns request pre-processing, authentication, and context injection. Depends on T
 - Frontend SPA routes (/, /login, /services, /documents, /chat, /settings, /admin/tenants, /admin/users, /admin/documents) bypass auth middleware
 - Frontend static files (/assets/*, /index.html, /favicon.ico, /vite.svg) bypass auth middleware
 - Dual auth: Authorization: Bearer JWT (user-level) or X-API-Key (tenant-level)
-- JWT auth injects: user_id, user, is_tenant_admin, is_super_admin, auth_mode
-- API key auth injects: tenant_id, tenant, auth_mode (no user context = admin-level access)
+-JWT auth injects: user_id, is_tenant_admin, is_super_admin, auth_mode (primitives only — no detached ORM objects)
+-API key auth injects: tenant_id, auth_mode, is_tenant_admin=True (tenant-level admin access)
 - Super admin bypass: is_super_admin=True skips tenant/department isolation checks
 - Annotated types provide type-safe dependency injection
 
 ## Module Index
 
-- tenant.py — TenantContextMiddleware, get_tenant_id, get_tenant, get_user_id, get_user, get_is_tenant_admin, get_is_super_admin, get_auth_mode, TenantId, TenantDep, UserId, UserDep, IsTenantAdmin, IsSuperAdmin, AuthMode
+- tenant.py — TenantContextMiddleware, get_tenant_id, get_is_tenant_admin, get_is_super_admin, get_auth_mode, TenantId, UserId, IsTenantAdmin, IsSuperAdmin, AuthMode (primitives only — no detached ORM objects)
 
 ## Work Guidance
 

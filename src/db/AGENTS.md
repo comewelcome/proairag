@@ -18,7 +18,7 @@ Owns the database connection, session lifecycle, and declarative base. All model
 
 ## Module Index
 
-- session.py — Base, engine, async_session, get_db() dependency
+-session.py — Base, engine, async_session, get_db() dependency, get_db_with_tenant() (RLS-aware session)
 - seed.py — Auto-seed super admin and dashboard tenants on startup (idempotent)
 
 ## Work Guidance
