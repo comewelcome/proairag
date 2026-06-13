@@ -1,4 +1,6 @@
 from pathlib import Path
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse
@@ -8,6 +10,19 @@ from src.config import get_settings
 from src.middleware.tenant import TenantContextMiddleware
 from src.api import tenants, documents, rag, auth, departments, chat
 import src.api.rag_settings as rag_settings
+import src.api.admin as admin_api
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: auto-seed super admin and dashboard tenants
+    from src.db.seed import run_seed
+    try:
+        await run_seed()
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("Auto-seed failed")
+    yield
 
 
 def create_app() -> FastAPI:
@@ -16,6 +31,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="ProAiRag - Hybrid Multi-Tenant RAG",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     # Middleware
@@ -29,6 +45,7 @@ def create_app() -> FastAPI:
     app.include_router(rag.router)
     app.include_router(chat.router)
     app.include_router(rag_settings.router)
+    app.include_router(admin_api.router)
 
     @app.get("/health")
     async def health():

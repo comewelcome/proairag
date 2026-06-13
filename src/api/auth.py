@@ -21,6 +21,7 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
         user_id=user.id,
         tenant_id=user.tenant_id,
         is_tenant_admin=user.is_tenant_admin,
+        is_super_admin=getattr(user, 'is_super_admin', False),
     )
     return TokenResponse(
         access_token=token,
@@ -49,6 +50,7 @@ async def register(
         user_id=user.id,
         tenant_id=user.tenant_id,
         is_tenant_admin=user.is_tenant_admin,
+        is_super_admin=getattr(user, 'is_super_admin', False),
     )
     return TokenResponse(
         access_token=token,

@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from '@tanstack/react-router';
-import { LayoutDashboard, FolderOpen, FileText, MessageSquare, Settings, LogOut, Building2 } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, FileText, MessageSquare, Settings, LogOut, Building2, Shield, Users } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const navItems = [
@@ -10,10 +10,16 @@ const navItems = [
   { path: '/settings', label: 'Parametres', icon: Settings },
 ];
 
+const adminNavItems = [
+  { path: '/admin/tenants', label: 'Tenants', icon: Shield },
+  { path: '/admin/users', label: 'Utilisateurs', icon: Users },
+  { path: '/admin/documents', label: 'Documents', icon: FileText },
+];
+
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tenant, logout } = useAuth();
+  const { tenant, logout, user } = useAuth();
 
   return (
     <aside className="w-64 min-h-screen bg-bg-secondary border-r border-border flex flex-col">
@@ -44,6 +50,27 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {user?.is_super_admin && (
+        <div className="px-3 py-2 border-t border-border">
+          <p className="text-xs font-semibold text-text-muted/60 uppercase tracking-wider px-2 mb-2">Admin</p>
+          <nav className="space-y-1">
+            {adminNavItems.map(({ path, label, icon: Icon }) => {
+              const isActive = location.pathname === path || location.pathname.startsWith(path + '/');
+              return (
+                <button
+                  key={path}
+                  onClick={() => navigate({ to: path })}
+                  className={`w-full sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
+                >
+                  <Icon size={18} />
+                  <span className="text-sm">{label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      )}
 
       <div className="p-3 border-t border-border">
         <button onClick={logout} className="w-full sidebar-link text-error hover:bg-error/10">

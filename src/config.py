@@ -42,6 +42,16 @@ class Settings(BaseSettings):
     # LLM generation
     llm_max_tokens: int = 500
 
+    # Super admin (global — auto-seed at startup)
+    super_admin_email: str = ""
+    super_admin_password: str = ""
+
+    # Dashboard auto-seed tenants (DASHBOARD_LOGIN_1, DASHBOARD_PASSWORD_1, etc.)
+    dashboard_login_1: str = ""
+    dashboard_password_1: str = ""
+    dashboard_login_2: str = ""
+    dashboard_password_2: str = ""
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
     def __init__(self, **data):
@@ -53,6 +63,19 @@ class Settings(BaseSettings):
                 f"Missing required environment variable(s): {', '.join(missing)}. "
                 "Set them in your .env file or environment."
             )
+
+    def get_dashboard_seeds(self) -> list[dict]:
+        """Return list of {email, password} for auto-seeded dashboard tenants."""
+        seeds = []
+        i = 1
+        while True:
+            email = getattr(self, f"dashboard_login_{i}", "") or ""
+            password = getattr(self, f"dashboard_password_{i}", "") or ""
+            if not email or not password:
+                break
+            seeds.append({"email": email, "password": password})
+            i += 1
+        return seeds
 
 
 @lru_cache()

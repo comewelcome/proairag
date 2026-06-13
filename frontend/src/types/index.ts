@@ -3,6 +3,7 @@ export interface User {
   email: string;
   full_name?: string;
   is_tenant_admin: boolean;
+  is_super_admin: boolean;
   tenant_id?: string;
 }
 

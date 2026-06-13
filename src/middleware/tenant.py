@@ -50,6 +50,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
                 request.state.user_id = user_context["user_id"]
                 request.state.user = user_context["user"]
                 request.state.is_tenant_admin = user_context["is_tenant_admin"]
+                request.state.is_super_admin = user_context["is_super_admin"]
                 request.state.auth_mode = "jwt"
                 response = await call_next(request)
                 return response
@@ -114,16 +115,22 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             "tenant_id": tenant.id,
             "tenant": tenant,
             "is_tenant_admin": payload.get("is_tenant_admin", False),
+            "is_super_admin": payload.get("is_super_admin", False),
         }
 
 
 def get_tenant_id(request: Request) -> uuid.UUID:
-    if not hasattr(request.state, "tenant_id"):
-        raise HTTPException(status_code=400, detail="Tenant context missing")
-    return request.state.tenant_id
+    if hasattr(request.state, "tenant_id") and request.state.tenant_id:
+        return request.state.tenant_id
+    if hasattr(request.state, "is_super_admin") and request.state.is_super_admin:
+        # Super admin: use the tenant from the path/query or any — they bypass
+        raise HTTPException(status_code=400, detail="Tenant context required for this endpoint. Super admin should use /api/admin/ endpoints.")
+    raise HTTPException(status_code=400, detail="Tenant context missing")
 
 
-def get_tenant(request: Request) -> Tenant:
+def get_tenant(request: Request) -> Tenant | None:
+    if hasattr(request.state, "is_super_admin") and request.state.is_super_admin:
+        return None  # Super admin bypasses tenant checks
     if not hasattr(request.state, "tenant"):
         raise HTTPException(status_code=400, detail="Tenant context missing")
     return request.state.tenant
@@ -141,6 +148,10 @@ def get_is_tenant_admin(request: Request) -> bool:
     return getattr(request.state, "is_tenant_admin", False)
 
 
+def get_is_super_admin(request: Request) -> bool:
+    return getattr(request.state, "is_super_admin", False)
+
+
 def get_auth_mode(request: Request) -> str:
     return getattr(request.state, "auth_mode", "api_key")
 
@@ -150,4 +161,5 @@ TenantDep = Annotated[Tenant, Depends(get_tenant)]
 UserId = Annotated[uuid.UUID | None, Depends(get_user_id)]
 UserDep = Annotated[User | None, Depends(get_user)]
 IsTenantAdmin = Annotated[bool, Depends(get_is_tenant_admin)]
+IsSuperAdmin = Annotated[bool, Depends(get_is_super_admin)]
 AuthMode = Annotated[str, Depends(get_auth_mode)]

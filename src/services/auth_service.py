@@ -28,7 +28,7 @@ class AuthService:
 
     @staticmethod
     def create_access_token(
-        user_id: uuid.UUID, tenant_id: uuid.UUID, is_tenant_admin: bool = False
+        user_id: uuid.UUID, tenant_id: uuid.UUID, is_tenant_admin: bool = False, is_super_admin: bool = False
     ) -> str:
         settings = get_settings()
         expire = datetime.now(timezone.utc) + timedelta(hours=settings.jwt_expire_hours)
@@ -36,6 +36,7 @@ class AuthService:
             "sub": str(user_id),
             "tenant_id": str(tenant_id),
             "is_tenant_admin": is_tenant_admin,
+            "is_super_admin": is_super_admin,
             "exp": expire,
             "iat": datetime.now(timezone.utc),
         }

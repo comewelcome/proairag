@@ -26,6 +26,7 @@ class TenantService:
                 password_hash=pwd_context.hash(data.admin_password),
                 full_name=data.admin_full_name,
                 is_tenant_admin=True,
+                is_super_admin=False,
             )
             self.db.add(admin)
 

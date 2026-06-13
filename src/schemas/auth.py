@@ -15,6 +15,7 @@ class UserResponse(BaseModel):
     email: str
     full_name: str | None
     is_tenant_admin: bool
+    is_super_admin: bool = False
     is_active: bool
     created_at: datetime
 
