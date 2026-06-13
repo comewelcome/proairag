@@ -36,7 +36,7 @@ All API routes are prefixed with `/api/` for the dashboard frontend integration.
 - GET /api/documents/ — List documents (tenant-isolated, optional department filter)
 - POST /api/documents/ — Ingest document from JSON payload (tenant-isolated, optional department_id)
 - POST /api/documents/upload — Upload file (PDF/TXT/DOCX), parse with LiteParse, chunk, embed, store
-- DELETE /api/documents/{doc_id} — Delete document and chunks
+- DELETE /api/documents/{doc_id} — Delete document, chunks (PostgreSQL) + cleanup Neo4j Chunks/Entities
 - POST /api/rag/query — Hybrid RAG query (vector + graph, tenant + department isolated)
 - POST /api/chat/sessions/ — Create new chat session
 - GET /api/chat/sessions/ — List chat sessions for tenant

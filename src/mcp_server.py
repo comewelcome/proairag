@@ -398,6 +398,90 @@ async def ingest_document(
 
         await db.commit()
 
+    # Sync to Neo4j knowledge graph
+    try:
+        from src.graph.entity_extractor import get_entity_extractor
+        from src.graph.neo4j_client import get_neo4j_client
+
+        extractor = get_entity_extractor()
+        neo4j = get_neo4j_client()
+        dept_id_str = str(uuid.UUID(department_id)) if department_id else None
+
+        chunk_records = []
+        all_entities: dict[str, dict] = {}
+        MAX_CO = 20
+
+        for i, chunk_text in enumerate(chunks_text):
+            chunk_id_str = str(uuid.uuid4())
+            chunk_records.append({
+                "chunk_id": chunk_id_str,
+                "tenant_id": str(resolved_tenant),
+                "document_id": str(doc_id),
+                "department_id": dept_id_str,
+                "chunk_index": i,
+            })
+            for ent in extractor.extract(chunk_text):
+                eid = ent.id
+                if eid not in all_entities:
+                    all_entities[eid] = {
+                        "entity_id": eid,
+                        "tenant_id": str(resolved_tenant),
+                        "name": ent.name,
+                        "type": ent.type,
+                        "confidence": ent.confidence,
+                        "chunk_ids": [],
+                    }
+                all_entities[eid]["chunk_ids"].append(chunk_id_str)
+
+        if chunk_records:
+            await neo4j.execute(
+                "UNWIND $records AS rec "
+                "MERGE (c:Chunk {id: rec.chunk_id}) "
+                "SET c.tenant_id = rec.tenant_id, "
+                "    c.document_id = rec.document_id, "
+                "    c.department_id = rec.department_id, "
+                "    c.chunk_index = rec.chunk_index",
+                {"records": chunk_records},
+            )
+
+        entity_pairs = []
+        for ent_data in all_entities.values():
+            for cid in ent_data["chunk_ids"]:
+                entity_pairs.append({
+                    "chunk_id": cid,
+                    **{k: v for k, v in ent_data.items() if k != "chunk_ids"},
+                })
+        if entity_pairs:
+            await neo4j.execute(
+                "UNWIND $pairs AS p "
+                "MERGE (c:Chunk {id: p.chunk_id}) "
+                "MERGE (e:Entity {id: p.entity_id, tenant_id: p.tenant_id}) "
+                "ON CREATE SET e.name = p.name, e.type = p.type, e.confidence = p.confidence "
+                "MERGE (c)-[:MENTIONS]->(e)",
+                {"pairs": entity_pairs},
+            )
+
+        # Co-occurrence (limited)
+        top_ents = sorted(all_entities.values(), key=lambda x: x["confidence"], reverse=True)[:MAX_CO]
+        pairs = []
+        for i, e1 in enumerate(top_ents):
+            for e2 in top_ents[i + 1:]:
+                if e1["type"] != e2["type"]:
+                    pairs.append((e1["entity_id"], e2["entity_id"], f"{e1['type']}_TO_{e2['type']}"))
+        if pairs:
+            await neo4j.execute(
+                "UNWIND $pairs AS pair "
+                "MATCH (a:Entity {id: pair.id1, tenant_id: $tenant_id}), "
+                "      (b:Entity {id: pair.id2, tenant_id: $tenant_id}) "
+                "MERGE (a)-[r:CO_OCCURS_WITH {type: pair.rel_type}]->(b) "
+                "ON CREATE SET r.count = 1 "
+                "ON MATCH SET r.count = r.count + 1",
+                {"tenant_id": str(resolved_tenant), "pairs": pairs},
+            )
+    except Exception:
+        import logging
+        logging.getLogger(__name__).warning("MCP graph sync failed for document %s", doc_id)
+
     return {
         "id": str(doc_id),
         "title": title,
@@ -673,14 +757,22 @@ async def _get_entity_context(
 
     query = f"""
     MATCH (e:Entity)
-    WHERE e.tenant_id = $tenant_id AND e.name IN $entity_names
-    MATCH path = (e)-[*1..{depth}]-(related)
+    WHERE e.tenant_id = $tenant_id
+      AND e.confidence > 0.6
+      AND any(name IN $entity_names WHERE toLower(name) = toLower(e.name))
+    OPTIONAL MATCH (e)<-[:MENTIONS]-(c:Chunk)
+    WHERE c.tenant_id = $tenant_id
+    WITH e, collect(distinct c) as chunks
+    WHERE size(chunks) > 0
+    WITH collect(e) as entities
+    UNWIND entities as start_node
+    OPTIONAL MATCH path = (start_node)-[*1..{depth}]-(related:Entity)
     WHERE related.tenant_id = $tenant_id
     RETURN
-        e.name as entity,
-        COALESCE(e.type, labels(e)[1]) as entity_type,
+        start_node.name as entity,
+        start_node.type as entity_type,
         related.name as related_name,
-        COALESCE(related.type, labels(related)[1]) as related_type,
+        related.type as related_type,
         length(path) as distance
     LIMIT 50
     """

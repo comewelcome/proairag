@@ -8,6 +8,7 @@ from src.models.document import Document
 from src.models.chunk import Chunk
 from src.services.ingestion_service import get_ingestion_service
 from src.schemas.document import DocumentCreate, DocumentResponse
+from src.graph.graph_sync import get_graph_sync_service
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -86,6 +87,17 @@ async def delete_document(
     await db.execute(sa_delete(Chunk).where(Chunk.document_id == doc_uuid))
     await db.delete(doc)
     await db.commit()
+
+    # Sync deletion to Neo4j (remove orphaned chunks and entities)
+    try:
+        graph_sync = get_graph_sync_service()
+        await graph_sync.delete_document(tenant_id=tenant_id, doc_id=doc_uuid)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).warning(
+            "Neo4j cleanup failed for document %s", doc_uuid
+        )
+
     return {"status": "deleted"}
 
 

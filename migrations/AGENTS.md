@@ -23,17 +23,19 @@ SQL:
 - 002_create_documents.sql — Documents table with FK to tenants, cascade delete
 - 003_create_chunks.sql — Chunks table with vector(384), hnsw index
 - 004_create_departments_users.sql — Departments, Users, User_Departments tables + department_id on documents
-- 005_rls_policies.sql — Row-Level Security policies for tenant isolation
+- 005_rls_policies.sql — Row-Level Security policies for tenant isolation (documents, chunks)
 - 006_rls_departments.sql — RLS policies for departments table
 - 007_create_conversations.sql — Conversations + Messages tables for chat history (tenant-isolated)
 - 008_create_tenant_settings.sql — Per-tenant RAG configuration (chunk_size, top_k, LLM provider, etc.)
 - 009_add_llm_max_tokens.sql — Add llm_max_tokens column (default: 500) for LLM generation
 - 010_add_super_admin.sql — Add is_super_admin boolean column to users table
+- 011_performance_indexes.sql — Composite indexes: chunks(tenant_id, document_id), messages(conversation_id, created_at DESC), partial index on processed docs
+- 012_rls_conversations_messages.sql — RLS policies for conversations and messages tables (defense-in-depth)
 
 Cypher:
-- 001_constraints.cypher — Unique constraints for Tenant, Document, Chunk, Entity
-- 002_indexes.cypher — Composite indexes on Entity, Chunk, Document by tenant_id
-- 003_department.cypher — Department node constraints and indexes
+- 001_constraints.cypher — Unique constraints for Chunk, Entity (no Tenant/Document/Department nodes)
+- 002_indexes.cypher — Composite indexes on Entity (type+tenant, name+tenant) and Chunk (tenant_id+document_id)
+- 003_department.cypher — Department nodes removed; department_id is a Chunk property
 
 ## Work Guidance
 

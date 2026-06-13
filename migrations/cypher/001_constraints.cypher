@@ -1,8 +1,6 @@
-CREATE CONSTRAINT tenant_unique IF NOT EXISTS
-FOR (t:Tenant) REQUIRE t.id IS UNIQUE;
-
-CREATE CONSTRAINT document_unique IF NOT EXISTS
-FOR (d:Document) REQUIRE d.id IS UNIQUE;
+// Constraints for the simplified Neo4j schema
+// Neo4j stores ONLY Chunk references and Entity nodes with relationships.
+// No Tenant/Document/Department nodes — tenant_id is a property on Chunk and Entity.
 
 CREATE CONSTRAINT chunk_unique IF NOT EXISTS
 FOR (c:Chunk) REQUIRE c.id IS UNIQUE;
