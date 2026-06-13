@@ -103,6 +103,9 @@ class ChatService:
         )
         self.db.add(user_msg)
 
+        # Build conversation history for context (last 20 messages)
+        history = await self._get_conversation_history(conversation_id, limit=20)
+
         # Get RAG response — respect user department filtering
         from src.schemas.rag import RAGQuery
         rag_service = get_rag_service(self.db)
@@ -118,6 +121,7 @@ class ChatService:
                 ),
                 user_id=user_id,
                 is_tenant_admin=is_tenant_admin,
+                conversation_history=history,
             )
             assistant_content = rag_result.answer
             sources = []
@@ -154,6 +158,26 @@ class ChatService:
         await self.db.refresh(assistant_msg)
         return MessageResponse.model_validate(assistant_msg)
 
+    async def _get_conversation_history(
+        self,
+        conversation_id: uuid.UUID,
+        limit: int = 20,
+    ) -> list[dict]:
+        """Retrieve recent messages as role/content dicts for LLM context."""
+        result = await self.db.execute(
+            select(Message)
+            .where(Message.conversation_id == conversation_id)
+            .order_by(Message.created_at.desc())
+            .limit(limit)
+        )
+        messages = result.scalars().all()
+        # Reverse to get chronological order
+        messages = list(reversed(messages))
+        return [
+            {"role": m.role, "content": m.content}
+            for m in messages
+        ]
+
     async def delete_conversation(
         self,
         conversation_id: uuid.UUID,
@@ -165,6 +189,7 @@ class ChatService:
         await self.db.delete(conv)
         await self.db.commit()
         return True
+
 
 def get_chat_service(db: AsyncSession) -> ChatService:
     return ChatService(db)

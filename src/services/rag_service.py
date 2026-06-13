@@ -21,6 +21,7 @@ class RAGService:
         rag_query: RAGQuery,
         user_id: uuid.UUID | None = None,
         is_tenant_admin: bool = False,
+        conversation_history: list[dict] | None = None,
     ) -> RAGResponse:
         # Resolve user departments for filtering
         department_ids: list[uuid.UUID] | None = None
@@ -59,7 +60,7 @@ class RAGService:
                     graph_context = []
 
         context_parts = self._build_context(vector_results, graph_context)
-        answer = await self._generate_answer(rag_query.query, context_parts)
+        answer = await self._generate_answer(rag_query.query, context_parts, conversation_history)
 
         sources = []
         for vr in vector_results:
@@ -125,7 +126,7 @@ class RAGService:
 
         return "\n".join(parts) if parts else "No context found."
 
-    async def _generate_answer(self, query: str, context: str) -> str:
+    async def _generate_answer(self, query: str, context: str, conversation_history: list[dict] | None = None) -> str:
         from src.services.llm_service import get_llm_provider
 
         system_prompt = (
@@ -140,7 +141,16 @@ class RAGService:
             "If the context does not contain enough information, clearly state what is missing."
         )
 
-        prompt = f"Context:\n\n{context}\n\nQuestion: {query}\n\nAnswer:"
+        # Build prompt with conversation history for multi-turn context
+        history_text = ""
+        if conversation_history:
+            history_parts = []
+            for msg in conversation_history:
+                role_label = "User" if msg["role"] == "user" else "Assistant"
+                history_parts.append(f"{role_label}: {msg['content']}")
+            history_text = "\n\n=== CONVERSATION HISTORY ===\n" + "\n".join(history_parts)
+
+        prompt = f"Context:\n\n{context}\n\n{history_text}\n\nQuestion: {query}\n\nAnswer:"
         llm = get_llm_provider()
         try:
             raw_answer = await llm.generate(prompt, system_prompt=system_prompt)
